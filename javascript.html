@@ -1,0 +1,519 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>JavaScript Basics &mdash; OpenERP Web Training 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="OpenERP Web Training 1.0 documentation" href="index.html" />
+    <link rel="next" title="JavaScript Libraries" href="firstapp.html" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="firstapp.html" title="JavaScript Libraries"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">OpenERP Web Training 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="javascript-basics">
+<h1>JavaScript Basics<a class="headerlink" href="#javascript-basics" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="preamble">
+<h2>Preamble<a class="headerlink" href="#preamble" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="what-is-a-web-application">
+<h3>What is a Web Application ?<a class="headerlink" href="#what-is-a-web-application" title="Permalink to this headline">¶</a></h3>
+<p>A web application is simply an application that is delivered and used through a web browser, but the term has recently taken
+a more specific meaning.</p>
+<p>The old way to make a web application, and the way OpenERP worked until version 6.0 is to make the server send to the
+user complete HTML documents representing the state of the application&#8217;s GUI. This means the server has to compute and
+send a new HTML document for each interaction; buttons clicks, searches, history navigation all require the server to
+resend a document.</p>
+<p>This puts a large load on the server and thus severely impact the number of concurrent users that can be served. It also
+creates a large latency in the application that makes the implementation of many features impossible, and limits what
+can be achieved in terms of usability.</p>
+<p>The solution is to create a complete and standalone application in JavaScript that runs on the user&#8217;s web browser. That
+type of application comes to have much more in common with traditional desktop applications (example: GTK, Swing, Qt,
+Windows Forms,...) than PHP-like web sites. The only difference with desktop applications, besides the programming
+language and libraries used, is that the web client is downloaded and run by the user&#8217;s browser each time he visits the
+OpenERP website.</p>
+</div>
+<div class="section" id="a-note-about-javascript">
+<h3>A Note about JavaScript<a class="headerlink" href="#a-note-about-javascript" title="Permalink to this headline">¶</a></h3>
+<p>JavaScript is the language understood by web browsers and thus a de-facto language for web applications. If you want to
+develop for OpenERP&#8217;s Web client you&#8217;ll need to know JavaScript.</p>
+<p>Objectively, JavaScript is a not a good programming language. It was designed by Netscape in 1995 for commercial purpose
+by a small team with a short development time. It was not meant to be the most universal programming language in the
+History. It has a lot a initial design problems and, due to backward-compatibility necessity, it was not really improved
+since its creation.</p>
+<p>Additionally JavaScript suffers from its wide popularity. This results in a lot of Google search results about
+JavaScript being articles written by people that do not have a formal training in computer programming or that can&#8217;t
+even program at all but still manage to get some effects by copy-pasting code.</p>
+<p>Still, despite its problems, the core of the language contains good ideas allowing a lot of creativity for programmers.
+(Like prototype-based programming and functional programming.) Most of JavaScript&#8217;s shortcomings can be erased by using
+the correct patterns and the correct tools. It also has strong advantages on its own. First of all, JavaScript is very
+fast. Fast to start, fast to run and fast to deploy. The ability to use HTML and the multimedia API of the browsers also
+allows to create very nice looking applications and good productivity compared to desktop application programming. The
+decisive point is probably the fact that JavaScript virtual machines are available on 99.99% of the desktop computers on
+the planet.</p>
+<p>In the end, if you&#8217;re a good programmers with the good libraries, the advantages far outweighs the inconveniences and
+makes JavaScript and the browser one of the best environment to develop applications for the general public.</p>
+</div>
+</div>
+<div class="section" id="command-line-interpreter">
+<h2>Command Line Interpreter<a class="headerlink" href="#command-line-interpreter" title="Permalink to this headline">¶</a></h2>
+<p>To test the basic features of the language, we recommend you to begin by using a command line interpreter. Most
+modern web browsers will provide a console to use JavaScript, but it is recommended to use <a class="reference external" href="http://www.google.com/chrome/">Google Chrome</a> for OpenERP&#8217;s web module development. All this guide will assume you this particular
+browser.</p>
+<p>Once Chrome is installed, open any web page then go in the configuration menu of Chrome and select <em>Tools &gt; Developer
+Tools</em> or use <em>Ctrl + Shift + I</em>. This should reveal a new section at the bottom of the window. Now select the
+<em>Console</em> panel. You should have a screen looking like this:</p>
+<img alt="_images/chrome.png" class="align-center" src="_images/chrome.png" style="width: 70%;" />
+<p>You will now be able to test the code snippets given in the next part.</p>
+</div>
+<div class="section" id="basic-data-types">
+<h2>Basic Data Types<a class="headerlink" href="#basic-data-types" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="numbers">
+<h3>Numbers<a class="headerlink" href="#numbers" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="p">((</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1.5</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="p">;</span>
+<span class="mi">8</span>
+</pre></div>
+</div>
+<p>Please note <strong>JavaScript do not have integers</strong>. All numbers are floats. This is a major difference with most other
+programming languages. This has impacts on some mathematical operations. Example:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+<span class="mf">1.5</span>
+</pre></div>
+</div>
+<p>In C, Java or Python the result would be 1, except if one of the members was casted to float or explicitly declared as
+float using a different notation (<tt class="docutils literal"><span class="pre">2.0</span></tt> or <tt class="docutils literal"><span class="pre">2.</span></tt>).</p>
+</div>
+<div class="section" id="booleans">
+<h3>Booleans<a class="headerlink" href="#booleans" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">2</span><span class="p">;</span>
+<span class="kc">false</span>
+<span class="o">&gt;</span> <span class="kc">true</span> <span class="o">==</span> <span class="kc">true</span><span class="p">;</span>
+<span class="kc">true</span>
+<span class="o">&gt;</span> <span class="kc">true</span> <span class="o">==</span> <span class="kc">false</span><span class="p">;</span>
+<span class="kc">false</span>
+</pre></div>
+</div>
+<p>As simple as booleans can be.</p>
+</div>
+<div class="section" id="strings">
+<h3>Strings<a class="headerlink" href="#strings" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="s2">&quot;Hello World&quot;</span><span class="p">;</span>
+<span class="s2">&quot;Hello World&quot;</span>
+<span class="o">&gt;</span> <span class="s1">&#39;Hello World&#39;</span><span class="p">;</span>
+<span class="s2">&quot;Hello World&quot;</span>
+</pre></div>
+</div>
+<p>Strings can be declared using single quotes or double quotes. Like most high level programming languages, strings have
+methods for many operations.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="s2">&quot;Hello World&quot;</span><span class="p">.</span><span class="nx">charAt</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+<span class="s2">&quot;l&quot;</span> <span class="c1">// like Python, there is not char type in JavaScript, a char is a string of size 1</span>
+<span class="o">&gt;</span> <span class="s2">&quot;Hello World&quot;</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">);</span>
+<span class="s2">&quot;Wor&quot;</span> <span class="c1">// slice() is used to obtain a sub-string</span>
+<span class="o">&gt;</span> <span class="s2">&quot;Hello World&quot;</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="mi">11</span>
+</pre></div>
+</div>
+<p>Strings also use the + operator for concatenation:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="s2">&quot;Hello &quot;</span> <span class="o">+</span> <span class="s2">&quot;World&quot;</span><span class="p">;</span>
+<span class="s2">&quot;Hello World&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="null">
+<h3>Null<a class="headerlink" href="#null" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+<span class="o">&gt;</span> <span class="nx">x</span><span class="p">;</span>
+<span class="kc">null</span>
+</pre></div>
+</div>
+<p>Similar to a lot of languages or <tt class="docutils literal"><span class="pre">None</span></tt> in Python.</p>
+</div>
+<div class="section" id="undefined">
+<h3>Undefined<a class="headerlink" href="#undefined" title="Permalink to this headline">¶</a></h3>
+<p>If you declare a variable but do not assign it it will have a special value. This value is not the same as <tt class="docutils literal"><span class="pre">null</span></tt>.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="kd">var</span> <span class="nx">x</span><span class="p">;</span>
+<span class="o">&gt;</span> <span class="nx">x</span><span class="p">;</span>
+<span class="kc">undefined</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="implicit-type-conversions">
+<h2>Implicit Type Conversions<a class="headerlink" href="#implicit-type-conversions" title="Permalink to this headline">¶</a></h2>
+<p>JavaScript provides automatic type conversion for most operators.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="s2">&quot;Test&quot;</span> <span class="o">+</span> <span class="mi">5</span><span class="p">;</span>
+<span class="s2">&quot;Test5&quot;</span>
+</pre></div>
+</div>
+<p>Practically that behavior can be useful in some cases, like implicit conversion to strings, but can also create strange
+behaviors, the typical case being comparisons. Here are some examples:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="s2">&quot;5&quot;</span> <span class="o">==</span> <span class="mi">5</span><span class="p">;</span>
+<span class="kc">true</span>
+<span class="o">&gt;</span> <span class="s2">&quot;&quot;</span> <span class="o">==</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kc">true</span>
+<span class="o">&gt;</span> <span class="s2">&quot;0&quot;</span> <span class="o">==</span> <span class="kc">false</span><span class="p">;</span>
+<span class="kc">true</span>
+</pre></div>
+</div>
+<p>Like in C, numbers are considered as <tt class="docutils literal"><span class="pre">false</span></tt> if they are <tt class="docutils literal"><span class="pre">0</span></tt> and <tt class="docutils literal"><span class="pre">true</span></tt> otherwise. Strings are considered as
+<tt class="docutils literal"><span class="pre">true</span></tt> except if they are empty.</p>
+<p>During any operations involving different types, multiple castings can occur which are quite complicated to predict for
+the programmer. That&#8217;s why it is considered safer to always use the <tt class="docutils literal"><span class="pre">===</span></tt> and <tt class="docutils literal"><span class="pre">!==</span></tt> operators.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="s2">&quot;5&quot;</span> <span class="o">===</span> <span class="mi">5</span><span class="p">;</span>
+<span class="kc">false</span>
+<span class="o">&gt;</span> <span class="s2">&quot;&quot;</span> <span class="o">===</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kc">false</span>
+<span class="o">&gt;</span> <span class="s2">&quot;0&quot;</span> <span class="o">===</span> <span class="kc">false</span><span class="p">;</span>
+<span class="kc">false</span>
+</pre></div>
+</div>
+<p>These operators will always return <tt class="docutils literal"><span class="pre">false</span></tt> if the types to compare are different.</p>
+</div>
+<div class="section" id="control-structures">
+<h2>Control Structures<a class="headerlink" href="#control-structures" title="Permalink to this headline">¶</a></h2>
+<p>JavaScript provides the same control structures than C. (To test with Chrome&#8217;s console, you can use <em>Shift + Enter</em> to
+enter multiple lines of code.)</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="k">if</span> <span class="p">(</span><span class="kc">true</span> <span class="o">==</span> <span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;true is true&quot;</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="kc">true</span> <span class="nx">is</span> <span class="kc">true</span>
+<span class="o">&gt;</span> <span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="o">&gt;</span> <span class="k">while</span> <span class="p">(</span><span class="nx">x</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">x</span><span class="p">);</span>
+      <span class="nx">x</span><span class="o">++</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="mi">1</span>
+<span class="mi">2</span>
+<span class="mi">3</span>
+<span class="o">&gt;</span> <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="mi">5</span>
+<span class="mi">6</span>
+<span class="mi">7</span>
+</pre></div>
+</div>
+<p>JavaScript also provides a specialized for structure to loop on objects. (<tt class="docutils literal"><span class="pre">for</span> <span class="pre">(...</span> <span class="pre">in</span> <span class="pre">...)</span></tt>.) It should be noted
+that, due to bad conception of the language involving variable scopes, functional programming, performances issues and
+bad behavior with arrays, almost all experienced programmers will avoid the usage of that structure and rather use
+functions provided by non-standard libraries like jQuery or Underscore. We recommend you to use <tt class="docutils literal"><span class="pre">_.each</span></tt> provided by
+Underscore most of the time. (More information about that library is given later in this document.)</p>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<p>Functions can be declared like this:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="kd">function</span> <span class="nx">talk</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Hello World&quot;</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="o">&gt;</span> <span class="nx">talk</span><span class="p">();</span>
+<span class="nx">Hello</span> <span class="nx">World</span>
+</pre></div>
+</div>
+<p>In JavaScript, functions are also a complete type by themselves. They can be declared as expressions and stored in
+variables.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="kd">var</span> <span class="nx">talk</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Hello World&quot;</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="o">&gt;</span> <span class="nx">talk</span><span class="p">();</span>
+<span class="nx">Hello</span> <span class="nx">World</span>
+<span class="o">&gt;</span> <span class="kd">var</span> <span class="nx">talkAgain</span> <span class="o">=</span> <span class="nx">talk</span><span class="p">;</span>
+<span class="o">&gt;</span> <span class="nx">talkAgain</span><span class="p">();</span>
+<span class="nx">Hello</span> <span class="nx">World</span>
+<span class="o">&gt;</span> <span class="kd">function</span> <span class="nx">executeFunc</span><span class="p">(</span><span class="nx">func</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">func</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="o">&gt;</span> <span class="nx">executeFunc</span><span class="p">(</span><span class="nx">talk</span><span class="p">);</span>
+<span class="nx">Hello</span> <span class="nx">World</span>
+</pre></div>
+</div>
+<p>Function arguments are declared like in most languages, except without types. Please note that the JavaScript virtual
+machine never checks the number of arguments when a function is called. If there are more arguments the function will be
+called anyway, if there are fewer arguments the remaining ones will be <tt class="docutils literal"><span class="pre">undefined</span></tt>.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="kd">var</span> <span class="nx">print</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">b</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="o">&gt;</span> <span class="nx">print</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">);</span>
+<span class="nx">hello</span>
+<span class="kc">undefined</span>
+<span class="o">&gt;</span> <span class="nx">print</span><span class="p">(</span><span class="s2">&quot;nice&quot;</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">,</span> <span class="s2">&quot;meet&quot;</span><span class="p">,</span> <span class="s2">&quot;you&quot;</span><span class="p">);</span>
+<span class="nx">nice</span>
+<span class="nx">to</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="variables-and-scopes">
+<h2>Variables and Scopes<a class="headerlink" href="#variables-and-scopes" title="Permalink to this headline">¶</a></h2>
+<p>A variable is declared by preceding its name by <tt class="docutils literal"><span class="pre">var</span></tt>. Unlike C++ and Java, a scope is not defined by the existence of
+braces. A scope is defined by a function.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="kd">function</span> <span class="nx">func1</span><span class="p">()</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">x</span><span class="p">;</span> <span class="c1">// x is inside the scope of func1</span>
+      <span class="kd">function</span> <span class="nx">func2</span><span class="p">()</span> <span class="p">{</span> <span class="c1">// func2 is inside the scope of func1</span>
+          <span class="kd">var</span> <span class="nx">y</span><span class="p">;</span> <span class="c1">// y is in the scope of func2</span>
+      <span class="p">}</span>
+      <span class="k">while</span> <span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
+          <span class="kd">var</span> <span class="nx">z</span><span class="p">;</span> <span class="c1">// z is not in a new scope, it is the same scope than x</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+<p>In this example, <tt class="docutils literal"><span class="pre">z</span></tt> is not a variable which is re-created at each iteration of the <tt class="docutils literal"><span class="pre">while</span></tt> loop, it is always the
+same variable for each iteration because the variable is defined in the scope of <tt class="docutils literal"><span class="pre">func1</span></tt>.</p>
+<p>Functions can also access the variables defined above them.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="kd">function</span> <span class="nx">func1</span><span class="p">()</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span><span class="p">;</span>
+      <span class="kd">function</span> <span class="nx">func2</span><span class="p">()</span> <span class="p">{</span>
+          <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">x</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="nx">func2</span><span class="p">();</span>
+      <span class="nx">x</span> <span class="o">=</span> <span class="s2">&quot;world&quot;</span><span class="p">;</span>
+      <span class="nx">func2</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="o">&gt;</span> <span class="nx">func1</span><span class="p">();</span>
+<span class="nx">hello</span>
+<span class="nx">world</span>
+</pre></div>
+</div>
+<p>When a variable is declared directly at the root of a source file, not inside any function, it exists in the global
+scope. Unlike Python, the global scope is not a scope specific to each source file. <em>The global scope is shared amongst
+all pieces of JavaScript code that are executed by an instance of the virtual machine</em>, which means on the same web
+page.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="c1">// file source1.js</span>
+<span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="s2">&quot;value1&quot;</span><span class="p">;</span>
+
+<span class="c1">// file source2.js</span>
+<span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="s2">&quot;value2&quot;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>If those two files are loaded by the same web page the variable <tt class="docutils literal"><span class="pre">x</span></tt> can only have one value, <tt class="docutils literal"><span class="pre">&quot;value1&quot;</span></tt> or
+<tt class="docutils literal"><span class="pre">&quot;value2&quot;</span></tt>, depending on which file was loaded last. This is obviously a problem and it can be solved using the Module
+Pattern (see later).</p>
+<p>One last note about scopes is that any value which is assigned but not declared will be implicitly considered as being
+part of the global scope. This means if you ever forget to use the <tt class="docutils literal"><span class="pre">var</span></tt> keyword the code will not crash but the
+variable will be global to the application instead of local to the current function. This is a very common source of
+errors in JavaScript.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="kd">function</span> <span class="nx">func1</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">x</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="o">&gt;</span> <span class="kd">function</span> <span class="nx">func2</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">x</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="o">&gt;</span> <span class="nx">func2</span><span class="p">();</span>
+<span class="nx">ReferenceError</span><span class="o">:</span> <span class="nx">x</span> <span class="nx">is</span> <span class="nx">not</span> <span class="nx">defined</span>
+<span class="o">&gt;</span> <span class="nx">func1</span><span class="p">();</span>
+<span class="o">&gt;</span> <span class="nx">func2</span><span class="p">();</span>
+<span class="nx">hello</span>
+<span class="o">&gt;</span> <span class="nx">x</span> <span class="o">=</span> <span class="s2">&quot;world&quot;</span><span class="p">;</span>
+<span class="o">&gt;</span> <span class="nx">func2</span><span class="p">();</span>
+<span class="nx">world</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="arrays">
+<h2>Arrays<a class="headerlink" href="#arrays" title="Permalink to this headline">¶</a></h2>
+<p>The syntax of the arrays is pretty similar to Python:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="kd">var</span> <span class="nx">array</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;world&quot;</span><span class="p">];</span>
+<span class="o">&gt;</span> <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">array</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">array</span><span class="p">[</span><span class="nx">i</span><span class="p">]);</span>
+  <span class="p">}</span>
+<span class="nx">hello</span> <span class="nx">world</span>
+</pre></div>
+</div>
+<p>Please note the above syntax to iterate on arrays works but is ineffective, for real use-cases you should use
+<tt class="docutils literal"><span class="pre">_.each()</span></tt> or a similar function provided by a third-party library.</p>
+<p>Like strings, the arrays have methods for different operations:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="kd">var</span> <span class="nx">array</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="o">&gt;</span> <span class="nx">array</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s2">&quot;banana&quot;</span><span class="p">);</span> <span class="c1">// adds an element at the end</span>
+<span class="o">&gt;</span> <span class="nx">array</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s2">&quot;tomato&quot;</span><span class="p">);</span>
+<span class="o">&gt;</span> <span class="nx">array</span><span class="p">;</span>
+<span class="p">[</span><span class="s2">&quot;banana&quot;</span><span class="p">,</span> <span class="s2">&quot;tomato&quot;</span><span class="p">]</span>
+<span class="o">&gt;</span> <span class="nx">array</span><span class="p">.</span><span class="nx">pop</span><span class="p">();</span> <span class="c1">// removes the last element and returns it</span>
+<span class="s2">&quot;tomato&quot;</span>
+<span class="o">&gt;</span> <span class="nx">array</span><span class="p">;</span>
+<span class="p">[</span><span class="s2">&quot;banana&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="objects">
+<h2>Objects<a class="headerlink" href="#objects" title="Permalink to this headline">¶</a></h2>
+<p>Object-oriented programming is possible in JavaScript, but it is very different compared to most other programming
+language (except if you know Lua).</p>
+<p>First of all, objects are dictionaries and dictionaries are objects. There is no difference in JavaScript. The syntax is
+quite similar to Python&#8217;s dictionaries but has alternative syntactic sugar depending if you prefer use a dictionary-like
+or an object-like syntax. Demonstration:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="kd">var</span> <span class="nx">obj</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s2">&quot;key1&quot;</span><span class="o">:</span> <span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="c1">// dictionary-like declaration</span>
+      <span class="nx">key2</span><span class="o">:</span> <span class="s2">&quot;world&quot;</span><span class="p">,</span> <span class="c1">// object-like declaration</span>
+  <span class="p">};</span>
+<span class="o">&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">obj</span><span class="p">[</span><span class="s2">&quot;key1&quot;</span><span class="p">]);</span> <span class="c1">// dictionary-like lookup</span>
+<span class="nx">hello</span>
+<span class="o">&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">obj</span><span class="p">.</span><span class="nx">key2</span><span class="p">);</span> <span class="c1">// object-like lookup</span>
+<span class="nx">world</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">obj[&quot;key&quot;]</span></tt> and <tt class="docutils literal"><span class="pre">obj.key</span></tt> have the exact same meaning. The first one will, by convention, be mostly used if you
+want to make a lookup in a dictionary and the second one will be mostly used to access an object&#8217;s attribute.</p>
+<p>Methods can simply be defined by putting a function inside an object:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="kd">var</span> <span class="nx">person</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;John Smith&quot;</span><span class="p">,</span>
+      <span class="nx">presentYourself</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="s2">&quot;Hello, my name is &quot;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">name</span><span class="p">;</span>
+      <span class="p">},</span>
+  <span class="p">};</span>
+<span class="o">&gt;</span> <span class="nx">person</span><span class="p">.</span><span class="nx">presentYourself</span><span class="p">();</span>
+<span class="s2">&quot;Hello, my name is John Smith&quot;</span>
+<span class="o">&gt;</span> <span class="nx">person</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="s2">&quot;John Doe&quot;</span><span class="p">;</span>
+<span class="o">&gt;</span> <span class="nx">person</span><span class="p">.</span><span class="nx">presentYourself</span><span class="p">();</span>
+<span class="s2">&quot;Hello, my name is John Doe&quot;</span>
+</pre></div>
+</div>
+<p>In JavaScript, each time a function is called it has and additional, implicitly declared variable called <tt class="docutils literal"><span class="pre">this</span></tt>. When
+a method is called on an object (using the usual <tt class="docutils literal"><span class="pre">object.method(arguments...)</span></tt> syntax), the <tt class="docutils literal"><span class="pre">this</span></tt> variable will
+be a reference to the current object.</p>
+<p>In the above example, we define a unique object containing all the attributes and methods necessary to make it work. But
+that&#8217;s not how most programming languages will handle object-oriented programming. They have a concept of class. A class
+will contain the properties common to all its instances. There are no classes in JavaScript but it is possible to
+reproduce that concept using <em>prototypes</em>.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="o">&gt;</span> <span class="kd">var</span> <span class="nx">Person</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="c1">// this function will represent a class &quot;Person&quot;</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="s2">&quot;JohnSmith&quot;</span><span class="p">;</span>
+  <span class="p">};</span>
+<span class="o">&gt;</span> <span class="nx">Person</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="nx">presentYourself</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="s2">&quot;Hello, my name is &quot;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">name</span><span class="p">;</span>
+      <span class="p">},</span>
+  <span class="p">};</span>
+<span class="o">&gt;</span> <span class="kd">var</span> <span class="nx">person</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Person</span><span class="p">();</span>
+<span class="o">&gt;</span> <span class="nx">person</span><span class="p">.</span><span class="nx">presentYourself</span><span class="p">();</span>
+<span class="s2">&quot;Hello, my name is John Smith&quot;</span>
+</pre></div>
+</div>
+<p>Since prototype-based oriented object programming is a vast subject we will not cover it more in this guide, though you
+can easily find some information about it on Internet.</p>
+<p>Due to differences between prototype-based and class-based oriented object programming, and the habits of most
+programmers, in OpenERP we chose to not use directly prototype-based oriented object programming. We use a high
+level API that allows programmers to easily declare classes in a way that seems natural to people that are used to more
+conventional programming languages. That subject will be covered later in this guide.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">JavaScript Basics</a><ul>
+<li><a class="reference internal" href="#preamble">Preamble</a><ul>
+<li><a class="reference internal" href="#what-is-a-web-application">What is a Web Application ?</a></li>
+<li><a class="reference internal" href="#a-note-about-javascript">A Note about JavaScript</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#command-line-interpreter">Command Line Interpreter</a></li>
+<li><a class="reference internal" href="#basic-data-types">Basic Data Types</a><ul>
+<li><a class="reference internal" href="#numbers">Numbers</a></li>
+<li><a class="reference internal" href="#booleans">Booleans</a></li>
+<li><a class="reference internal" href="#strings">Strings</a></li>
+<li><a class="reference internal" href="#null">Null</a></li>
+<li><a class="reference internal" href="#undefined">Undefined</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implicit-type-conversions">Implicit Type Conversions</a></li>
+<li><a class="reference internal" href="#control-structures">Control Structures</a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+<li><a class="reference internal" href="#variables-and-scopes">Variables and Scopes</a></li>
+<li><a class="reference internal" href="#arrays">Arrays</a></li>
+<li><a class="reference internal" href="#objects">Objects</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="previous chapter">Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="firstapp.html"
+                        title="next chapter">JavaScript Libraries</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/javascript.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="firstapp.html" title="JavaScript Libraries"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             >previous</a> |</li>
+        <li><a href="index.html">OpenERP Web Training 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, OpenERP SA.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

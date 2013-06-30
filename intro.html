@@ -1,0 +1,153 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction &mdash; OpenERP Web Training 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="OpenERP Web Training 1.0 documentation" href="index.html" />
+    <link rel="next" title="JavaScript Basics" href="javascript.html" />
+    <link rel="prev" title="Welcome to OpenERP Web Training" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="javascript.html" title="JavaScript Basics"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to OpenERP Web Training"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">OpenERP Web Training 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="reminder-about-openerp-structure">
+<h2>Reminder about OpenERP Structure<a class="headerlink" href="#reminder-about-openerp-structure" title="Permalink to this headline">¶</a></h2>
+<p>OpenERP contains the following parts:</p>
+<img alt="_images/architecture.png" class="align-center" src="_images/architecture.png" style="width: 70%;" />
+<ul class="simple">
+<li>The OpenERP server contains the server-side framework and handles requests coming from clients.</li>
+<li>The PostgreSQL database contains our data.</li>
+<li>The modules implement the business logic.</li>
+<li>The client web application communicates with the server and displays a graphical user interface.</li>
+</ul>
+<p>This guide is all about web applications development and the OpenERP&#8217;s web client.</p>
+</div>
+<div class="section" id="about-this-guide">
+<h2>About this Guide<a class="headerlink" href="#about-this-guide" title="Permalink to this headline">¶</a></h2>
+<p>This guide is a training material to teach OpenERP integrators how to create web modules for OpenERP. The covered
+subjects are the following:</p>
+<ul class="simple">
+<li>Javascript basics and good practices</li>
+<li>Basics of jQuery and Underscore (Javascript libraries used in OpenERP&#8217;s web client)</li>
+<li>OpenERP&#8217;s Javascript and web applications framework</li>
+<li>Extension points for OpenERP&#8217;s web client</li>
+</ul>
+<p>This guide assumes the reader followed the technical training about OpenERP modules creation provided by OpenERP SA or
+have a good knowledge of Python modules development. This guide also assume the reader is experienced in object-oriented
+programming and has basic knowledge of at least one programming language whose syntax is based on C (C++, Java, C#,...).
+It may also refer to the Bazaar version control system. Finally, it is necessary to have a minimal knowledge of HTML and
+CSS.</p>
+<p>All provided examples assume you are developing under a Linux operating system, most specifically Ubuntu or Debian. If
+you are using Windows, we recommend you to get a virtual machine with Ubuntu. The website <a class="reference external" href="http://virtualboxes.org/">http://virtualboxes.org/</a>
+provides pre-installed virtual machines images for a lot of Linux distributions for free. They only require to install
+Virtual Box which is also free.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#reminder-about-openerp-structure">Reminder about OpenERP Structure</a></li>
+<li><a class="reference internal" href="#about-this-guide">About this Guide</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to OpenERP Web Training</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="javascript.html"
+                        title="next chapter">JavaScript Basics</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/intro.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="javascript.html" title="JavaScript Basics"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to OpenERP Web Training"
+             >previous</a> |</li>
+        <li><a href="index.html">OpenERP Web Training 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, OpenERP SA.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,790 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>JavaScript Libraries &mdash; OpenERP Web Training 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="OpenERP Web Training 1.0 documentation" href="index.html" />
+    <link rel="next" title="OpenERP Web Framework" href="web_framework.html" />
+    <link rel="prev" title="JavaScript Basics" href="javascript.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="web_framework.html" title="OpenERP Web Framework"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="javascript.html" title="JavaScript Basics"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">OpenERP Web Training 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="javascript-libraries">
+<h1>JavaScript Libraries<a class="headerlink" href="#javascript-libraries" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="a-first-javascript-application">
+<h2>A First JavaScript Application<a class="headerlink" href="#a-first-javascript-application" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="download-and-launch-the-start-application">
+<h3>Download and Launch the Start Application<a class="headerlink" href="#download-and-launch-the-start-application" title="Permalink to this headline">¶</a></h3>
+<p>This is now time to stop using the Chrome&#8217;s command line interpreter, and start a complete JavaScript application. We
+provide a basic structure for a sample application that you should download to continue reading this guide. That
+sample application is located in a Bazaar branch. In the case you don&#8217;t have Bazaar installed, you can type this
+command in your Linux shell:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">&gt;</span> sudo apt-get install bzr
+</pre></div>
+</div>
+<p>Now you can download the sample application using:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">&gt;</span> bzr branch lp:~niv-openerp/+junk/basicjssite jstraining -r 1
+</pre></div>
+</div>
+<p>To demonstrate communication between a JavaScript web application and a server process, that sample application
+integrates a minimalist Python web server. That web server may require some dependencies to install, you can do it
+like so:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">&gt;</span> sudo apt-get install python
+<span class="gp">&gt;</span> sudo easy_install flask
+</pre></div>
+</div>
+<p>You can now launch that Python web application using this command:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">&gt;</span> python app.py
+</pre></div>
+</div>
+<p>Now you should be able to use your web browser to access the web server at the url <a class="reference external" href="http://localhost:5000">http://localhost:5000</a>. The web
+page should look like this:</p>
+<img alt="_images/startapp.png" class="align-center" src="_images/startapp.png" style="width: 70%;" />
+</div>
+<div class="section" id="architecture-of-the-application">
+<h3>Architecture of the Application<a class="headerlink" href="#architecture-of-the-application" title="Permalink to this headline">¶</a></h3>
+<p>Let&#8217;s take a look at the only HTML file of the application which is located in <tt class="docutils literal"><span class="pre">static/index.html</span></tt>:</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">href=</span><span class="s">&quot;static/css/app.css&quot;</span> <span class="na">type=</span><span class="s">&quot;text/css&quot;</span><span class="nt">&gt;&lt;/link&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;application/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;/static/js/jquery.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;application/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;/static/js/underscore.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;application/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;/static/js/app.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;application/javascript&quot;</span><span class="nt">&gt;</span>
+        <span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">app</span><span class="p">.</span><span class="nx">main</span><span class="p">();</span>
+        <span class="p">});</span>
+    <span class="nt">&lt;/script&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+<span class="nt">&lt;body&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;main_block&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;main_content&quot;</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;right_side&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;button&gt;</span>Click Me<span class="nt">&lt;/button&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</pre></div>
+</div>
+<p>This web page contains a few HTML elements which are styled by the <tt class="docutils literal"><span class="pre">static/css/app.css</span></tt> css file.</p>
+<p>This HTML file also import three JavaScript files. Two of those are well-known libraries in the JavaScript community:
+jQuery and Underscore. The last JavaScript file, <tt class="docutils literal"><span class="pre">/static/js/app.js</span></tt> is the file that will contain the logic of
+this application.</p>
+<p>The last <tt class="docutils literal"><span class="pre">&lt;script/&gt;</span></tt> block is a little harder to understand:</p>
+<ul class="simple">
+<li>The call to the enigmatic <tt class="docutils literal"><span class="pre">$</span></tt> function, to which we pass an anonymous function. The <tt class="docutils literal"><span class="pre">$</span></tt> function is part of the
+jQuery library. This function can have multiple uses that will be explained later. For now, just remember that when
+you call it with that precise syntax it will execute a piece of JavaScript code once the browser has finished loading
+the HTML file. This is the right time if we want to modify the content with JavaScript code.</li>
+<li>The function <tt class="docutils literal"><span class="pre">app.main</span></tt> is part of our JavaScript file. See the next section.</li>
+</ul>
+</div>
+<div class="section" id="the-module-pattern">
+<h3>The Module Pattern<a class="headerlink" href="#the-module-pattern" title="Permalink to this headline">¶</a></h3>
+<p>As stated earlier in this guide, when you simply declare a variable in JavaScript, outside of any function, it will
+be a global variable:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">my_var</span> <span class="o">=</span> <span class="s2">&quot;my value&quot;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>This means the <tt class="docutils literal"><span class="pre">my_var</span></tt> variable will be accessible in all the JavaScript files imported by the HTML file. This is
+generally considered a bad programming style so we will try to avoid it.</p>
+<p>Instead we will use what is known as the <em>Module Pattern</em>. It is a pattern used to declare variables and functions that
+will be local to a file. Here is what it looks like for the <tt class="docutils literal"><span class="pre">app.js</span></tt> file:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="nx">app</span> <span class="o">=</span> <span class="p">{};</span>
+
+    <span class="kd">function</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;launch application&quot;</span><span class="p">);</span>
+    <span class="p">};</span>
+    <span class="nx">app</span><span class="p">.</span><span class="nx">main</span> <span class="o">=</span> <span class="nx">main</span><span class="p">;</span>
+
+<span class="p">})();</span>
+</pre></div>
+</div>
+<p>We can decompose the Module Pattern this way:</p>
+<ul class="simple">
+<li>All the declarations of the file are wrapped in an anonymous function which is directly called.</li>
+<li>Now we can declare anything we want inside the function. Any <tt class="docutils literal"><span class="pre">var</span></tt> or <tt class="docutils literal"><span class="pre">function</span></tt> declaration will be local to
+the module&#8217;s function and thus it will be a <em>private</em> member of our module.</li>
+<li>We declare one and only one global variable. That variable is a dictionary and it is declared using the syntax
+<tt class="docutils literal"><span class="pre">app</span> <span class="pre">=</span> <span class="pre">{};</span></tt>. Remember: when you declare a variable in JavaScript without using the keyword <tt class="docutils literal"><span class="pre">var</span></tt> it will be
+a global variable. The <tt class="docutils literal"><span class="pre">app</span></tt> dictionary is the <em>namespace</em> of our JavaScript module.</li>
+<li>To expose anything to the outside of the module, to make it <em>public</em>, we add it to the namespace <tt class="docutils literal"><span class="pre">app</span></tt>.</li>
+</ul>
+<p>In this module, we only have one public function: <tt class="docutils literal"><span class="pre">main</span></tt>. If you take a look in the HTML file you will see how to
+call that function:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">app</span><span class="p">.</span><span class="nx">main</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>The only thing this function does right now is printing a message in the debugging console.</p>
+</div>
+<div class="section" id="debugging-tools">
+<h3>Debugging Tools<a class="headerlink" href="#debugging-tools" title="Permalink to this headline">¶</a></h3>
+<p>Like in a lot of dynamic languages, in JavaScript it is very useful for development to be able to debug your code. But,
+unlike languages like Java or C, most JavaScript editors do not provide a system to mark debug points. This can be
+replaced with the <tt class="docutils literal"><span class="pre">debugger</span></tt> keyword. Modify your source to add that keyword before the call to <tt class="docutils literal"><span class="pre">console.log()</span></tt>:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="nx">app</span> <span class="o">=</span> <span class="p">{};</span>
+
+    <span class="kd">function</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kr">debugger</span><span class="p">;</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;launch application&quot;</span><span class="p">);</span>
+    <span class="p">};</span>
+    <span class="nx">app</span><span class="p">.</span><span class="nx">main</span> <span class="o">=</span> <span class="nx">main</span><span class="p">;</span>
+
+<span class="p">})();</span>
+</pre></div>
+</div>
+<p>Launch the application and open the developer tools (<tt class="docutils literal"><span class="pre">Ctrl+Shift+I</span></tt> or select <tt class="docutils literal"><span class="pre">Tools</span> <span class="pre">&gt;</span> <span class="pre">Developer</span> <span class="pre">Tools</span></tt> in Chrome&#8217;s
+menu). Now reload the application using <tt class="docutils literal"><span class="pre">F5</span></tt>.</p>
+<img alt="_images/chromedebug.png" class="align-center" src="_images/chromedebug.png" style="width: 70%;" />
+<p>When the developer tools window is shown, Chrome will automatically stop when it reaches a <tt class="docutils literal"><span class="pre">debugger</span></tt> keyword and jump
+to the <tt class="docutils literal"><span class="pre">Sources</span></tt> tab. Now you can use the debugger&#8217;s buttons on the top right to advance step, resume, etc... Also
+note you can put debugging marks in the debugger by clicking on the line numbers on the left, but this can be less
+ergonomic if you were editing code in your text editor.</p>
+<p>Another noteworthy debugging tool is the <tt class="docutils literal"><span class="pre">console.log()</span></tt> function. It will print messages that can be read in the
+<tt class="docutils literal"><span class="pre">Console</span></tt> tab of the developer tools.</p>
+</div>
+</div>
+<div class="section" id="underscore-js">
+<h2>Underscore.js<a class="headerlink" href="#underscore-js" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://underscorejs.org/">Underscore.js</a> is a library providing various utility functions for JavaScript. It is heavily used in OpenERP and we
+recommend you to learn how to use it. Underscore.js functions are all wrapped in a namespace contained in the <tt class="docutils literal"><span class="pre">_</span></tt>
+variable.</p>
+<p>One the most used function of Underscore is <tt class="docutils literal"><span class="pre">_.each()</span></tt>. As explained in the JavaScript Basics part of this guide, it
+is considered a bad practice to use the <tt class="docutils literal"><span class="pre">for</span></tt> loop of JavaScript. <tt class="docutils literal"><span class="pre">_.each()</span></tt> is a good replacement for it. Example:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">array</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;world&quot;</span><span class="p">]</span>
+<span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">array</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">x</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="c1">// outputs:</span>
+<span class="c1">// hello</span>
+<span class="c1">// world</span>
+</pre></div>
+</div>
+<p>The first argument of <tt class="docutils literal"><span class="pre">_.each()</span></tt> must be an array or a dictionary. The second one must be a function. When called with
+an array as first argument, the function will receive one parameter: the current value of the array.</p>
+<p>When called with a dictionary, the function will receive two parameter. The first one is the current value and the
+second one the current key. Example:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;banana&quot;</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;potato&quot;</span><span class="o">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;apple&quot;</span><span class="o">:</span> <span class="mi">5</span><span class="p">};</span>
+<span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">dict</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">v</span><span class="p">,</span> <span class="nx">k</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">k</span><span class="p">,</span> <span class="nx">v</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="c1">// outputs:</span>
+<span class="c1">// banana 2</span>
+<span class="c1">// potato 3</span>
+<span class="c1">// apple 5</span>
+</pre></div>
+</div>
+<p>Another example of a useful function in underscore is <tt class="docutils literal"><span class="pre">_.range()</span></tt>. It generates a list of numbers:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">));</span>
+<span class="c1">// outputs:</span>
+<span class="c1">// [0, 1, 2, 3, 4]</span>
+</pre></div>
+</div>
+<div class="topic">
+<p class="topic-title first">Exercise - Usage of Underscore.js</p>
+<p>In the <tt class="docutils literal"><span class="pre">main()</span></tt> function of the start application, create a piece a code that will add all numbers from 1 to 100
+and print the result in the console. Use <tt class="docutils literal"><span class="pre">_.each()</span></tt> and <tt class="docutils literal"><span class="pre">_.range()</span></tt>.</p>
+</div>
+<p><strong>Solution:</strong></p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="nx">app</span> <span class="o">=</span> <span class="p">{};</span>
+
+    <span class="kd">function</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">101</span><span class="p">),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">x</span> <span class="o">+=</span> <span class="nx">i</span><span class="p">;</span>
+        <span class="p">});</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Result&quot;</span><span class="p">,</span> <span class="nx">x</span><span class="p">);</span>
+    <span class="p">};</span>
+    <span class="nx">app</span><span class="p">.</span><span class="nx">main</span> <span class="o">=</span> <span class="nx">main</span><span class="p">;</span>
+
+<span class="p">})();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="html-manipulations-with-jquery">
+<h2>HTML Manipulations with jQuery<a class="headerlink" href="#html-manipulations-with-jquery" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://jquery.com/">jQuery</a> is a JavaScript library just like Underscore whose main goal is to provide an abstraction layer over the web
+browser&#8217;s API to help common operations and improve compatibility between different browsers. One of the main usages of
+jQuery is to help the developers to manipulate the HTML displayed in the browser.</p>
+<div class="section" id="the-dom">
+<h3>The DOM<a class="headerlink" href="#the-dom" title="Permalink to this headline">¶</a></h3>
+<p>The DOM (Document Object Model) is a conceptual representation of the content of the web page. When a JavaScript piece
+of code wants to modify the visual content of a page it will modify the DOM, and the browser will alter the graphical
+aspect in consequence.</p>
+<p>Use Chrome&#8217;s developer tools, you can consult the actual state of the DOM using the <tt class="docutils literal"><span class="pre">Elements</span></tt> tab:</p>
+<img alt="_images/dom.png" class="align-center" src="_images/dom.png" style="width: 70%;" />
+<p>If we execute a simple JavaScript code in the <tt class="docutils literal"><span class="pre">Console</span></tt> tab to modify the DOM, we will see the modifications in the
+<tt class="docutils literal"><span class="pre">Elements</span></tt> tab as well as in the browser itself. Example:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">).</span><span class="nx">text</span><span class="p">(</span><span class="s2">&quot;I changed the DOM&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This piece of code will erase the content of the web page and put the text &#8220;I Changed the DOM&#8221; instead. You can also
+see the modifications in the DOM explorer:</p>
+<img alt="_images/dom2.png" class="align-center" src="_images/dom2.png" style="width: 70%;" />
+<p>If you want, you can also use the <tt class="docutils literal"><span class="pre">Elements</span></tt> tab to modify the DOM. Than can sometimes be useful to test multiple
+layouts as example.</p>
+</div>
+<div class="section" id="jquery-selectors">
+<h3>jQuery Selectors<a class="headerlink" href="#jquery-selectors" title="Permalink to this headline">¶</a></h3>
+<p>To select a part of the DOM, we use what is called a jQuery selector. To do so, we call the jQuery method and give it a
+string as argument:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When the jQuery library is loaded in a project, it defines two variables: <tt class="docutils literal"><span class="pre">jQuery</span></tt> and <tt class="docutils literal"><span class="pre">$</span></tt>. These two variables are
+in reality the exact same thing: the jQuery function. When called with as first argument, it will try to find one or
+more elements in the DOM that match the given expression.</p>
+<p>A lot of readers could already know XPath, which is an language used to define expression to search elements in XML.
+That language could have been chosen by jQuery&#8217;s creators to select HTML elements, but they decided to use another
+syntax that is more similar to CSS.</p>
+<p>To select all elements with a certain tag you can just put the name of the tag in the expression:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">)</span> <span class="c1">// all &lt;input&gt; elements</span>
+<span class="nx">$</span><span class="p">(</span><span class="s2">&quot;div&quot;</span><span class="p">)</span> <span class="c1">// all &lt;div&gt; elements</span>
+</pre></div>
+</div>
+<p>To select an element with a precise <tt class="docutils literal"><span class="pre">id</span></tt> you must put the <tt class="docutils literal"><span class="pre">#</span></tt> character in front of the identifier:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#content&quot;</span><span class="p">)</span> <span class="c1">// the element with id &#39;content&#39;</span>
+</pre></div>
+</div>
+<p>The select all the elements that have a precise CSS class you must use the <tt class="docutils literal"><span class="pre">.</span></tt> character:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.title&quot;</span><span class="p">)</span> <span class="c1">// the elements with the &#39;title&#39; class</span>
+</pre></div>
+</div>
+<p>Just like in CSS you can also combine these selectors:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;span.title&quot;</span><span class="p">)</span> <span class="c1">// all &lt;span&gt; elements with the &#39;title&#39; class</span>
+<span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#content table&quot;</span><span class="p">)</span> <span class="c1">// all &lt;table&gt; elements that are children of the element with id &#39;content&#39;</span>
+</pre></div>
+</div>
+<p>When the <tt class="docutils literal"><span class="pre">$()</span></tt> is called, it will return a <em>jQuery object</em>. That jQuery object can be seen as an array with a pointer
+to all the elements in the DOM that were matched by given expression, except it has a lot of useful methods.</p>
+<p>More documentation about the jQuery selectors can be found in the jQuery documentation:
+<a class="reference external" href="http://api.jquery.com/category/selectors/">http://api.jquery.com/category/selectors/</a> .</p>
+</div>
+<div class="section" id="jquery-events">
+<h3>jQuery Events<a class="headerlink" href="#jquery-events" title="Permalink to this headline">¶</a></h3>
+<p>Most HTML elements are able to produce events. jQuery can make it easy to catch these events and execute a piece of
+JavaScript code. In the following example we catch the <tt class="docutils literal"><span class="pre">click</span></tt> event on the button displayed on the page to print a
+message in the console:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;button&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;someone clicked on the button&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>Here we pass a function to the <tt class="docutils literal"><span class="pre">click()</span></tt> method on the jQuery object. When the event is fired, the function will be
+called. Please note that, if there are multiple elements selected by our call of <tt class="docutils literal"><span class="pre">$()</span></tt>, the <tt class="docutils literal"><span class="pre">click</span></tt> event will be
+bound to <em>all</em> these buttons.</p>
+<p>There is a wide array of events that can be fired, e.g. the mouse passing over an element, the user pushing a key on
+the keyboard, an <tt class="docutils literal"><span class="pre">&lt;input&gt;</span></tt> element being modified, etc... More documentation about events can be found in the jQuery
+documentation: <a class="reference external" href="http://api.jquery.com/category/events/">http://api.jquery.com/category/events/</a></p>
+</div>
+<div class="section" id="dom-modifications-with-jquery">
+<h3>DOM Modifications with jQuery<a class="headerlink" href="#dom-modifications-with-jquery" title="Permalink to this headline">¶</a></h3>
+<p>jQuery provides many functions that can modify DOM elements.</p>
+<p>To replace the content of a jQuery tag and put new HTML inside it, you can use the <tt class="docutils literal"><span class="pre">html()</span></tt> method:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.main_content&quot;</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="s1">&#39;&lt;div style=&quot;color: white&quot;&gt;Hello world!&lt;/div&gt;&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>To avoid replacing the whole content and simply add some HTML at the end of the element, use the <tt class="docutils literal"><span class="pre">append()</span></tt> method:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.main_content&quot;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="s1">&#39;&lt;div style=&quot;color: red&quot;&gt;Hello world again!&lt;/div&gt;&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>To do the opposite, put some HTML at the beginning of the element, use <tt class="docutils literal"><span class="pre">prepend()</span></tt>:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.main_content&quot;</span><span class="p">).</span><span class="nx">prepend</span><span class="p">(</span><span class="s1">&#39;&lt;div style=&quot;color: green&quot;&gt;Hello world, I am the first one!&lt;/div&gt;&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>To put some text in an element it is a bad idea to use the <tt class="docutils literal"><span class="pre">html()</span></tt> method, because that text could contain text that
+looks like HTML and the browser could try to interpret it as real HTML. To avoid that the text must be escaped, this
+can be done automatically by the <tt class="docutils literal"><span class="pre">text()</span></tt> method:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.main_content&quot;</span><span class="p">).</span><span class="nx">text</span><span class="p">(</span><span class="s1">&#39;The &lt;div&gt; element will appear as-is in the browser.&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="exercise">
+<h3>Exercise<a class="headerlink" href="#exercise" title="Permalink to this headline">¶</a></h3>
+<div class="topic">
+<p class="topic-title first">Exercise - Usage of jQuery</p>
+<p>Modify the code of the start application so, when the user click on the button, it counts from 1 to 10 and prints
+each number on a separate line in the area on the left.</p>
+</div>
+<p><strong>Solution:</strong></p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="nx">app</span> <span class="o">=</span> <span class="p">{};</span>
+
+    <span class="kd">function</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;button&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.main_content&quot;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="s2">&quot;&lt;div&gt;&quot;</span> <span class="o">+</span> <span class="nx">i</span> <span class="o">+</span> <span class="s2">&quot;&lt;/div&gt;&quot;</span><span class="p">);</span>
+            <span class="p">});</span>
+        <span class="p">});</span>
+    <span class="p">};</span>
+    <span class="nx">app</span><span class="p">.</span><span class="nx">main</span> <span class="o">=</span> <span class="nx">main</span><span class="p">;</span>
+
+<span class="p">})();</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="http-requests-with-jquery">
+<h2>HTTP Requests with jQuery<a class="headerlink" href="#http-requests-with-jquery" title="Permalink to this headline">¶</a></h2>
+<p>In database-centric applications like OpenERP, JavaScript code needs to communicate with the server. jQuery provides
+a function to do so.</p>
+<p>We will also use the JSON format. JSON stands for JavaScript Object Notation. It is a lightweight format used to encode
+data to be exchanged between different computers. Due to its simplicity, it is very easy to implement in any programming
+language and the vast majority of existing programming languages already have one or more implementations of a JSON
+reader/writer. Here is a simple example that demonstrates the totality of JSON data types:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;string&quot;</span><span class="o">:</span> <span class="s2">&quot;this is a string&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;number&quot;</span><span class="o">:</span> <span class="mi">42</span><span class="p">,</span>
+    <span class="s2">&quot;array&quot;</span><span class="o">:</span> <span class="p">[</span><span class="kc">null</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="kc">false</span><span class="p">],</span>
+    <span class="s2">&quot;dictionary&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;a simple dictionary&quot;</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>To test the HTTP requests in JavaScript, we will use the <tt class="docutils literal"><span class="pre">app.py</span></tt> Python application that contains some JSON web
+services:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/service_plus&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;POST&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">service_plus</span><span class="p">():</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">json</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&quot;a&quot;</span><span class="p">]</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]</span>
+    <span class="n">delay</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;delay&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
+        <span class="s">&quot;addition&quot;</span><span class="p">:</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">,</span>
+    <span class="p">})</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/service_mult&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;POST&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">service_mult</span><span class="p">():</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">json</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&quot;a&quot;</span><span class="p">]</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]</span>
+    <span class="n">delay</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;delay&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
+        <span class="s">&quot;multiplication&quot;</span><span class="p">:</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span><span class="p">,</span>
+    <span class="p">})</span>
+</pre></div>
+</div>
+<p>It would be out of the scope of this guide to explain how works the Flask Python library which is used to create these
+web services in Python. Just remember that this code declare two URLs that accept and return JSON and perform simple
+mathematic operations (addition and multiplication). We will code some JavaScript that contact these web services.</p>
+<div class="section" id="the-ajax-method">
+<h3>The <tt class="docutils literal"><span class="pre">$.ajax()</span></tt> method<a class="headerlink" href="#the-ajax-method" title="Permalink to this headline">¶</a></h3>
+<p>The method used to perform an HTTP request in jQuery is the <tt class="docutils literal"><span class="pre">$.ajax()</span></tt> method. The AJAX acronym meaning Asynchronous
+JavaScript and XML, a name which loosed its signification nowadays because developers use it to send other data than
+XML. Anyway, that term is still used in jQuery&#8217;s documentation.</p>
+<p>Here is an example which will call the <tt class="docutils literal"><span class="pre">/service_plus</span></tt> web service:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="s2">&quot;/service_plus&quot;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+    <span class="nx">dataType</span><span class="o">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+    <span class="nx">data</span><span class="o">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+        <span class="s2">&quot;a&quot;</span><span class="o">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;b&quot;</span><span class="o">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="p">}),</span>
+    <span class="nx">contentType</span><span class="o">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;3+5=&quot;</span><span class="p">,</span> <span class="nx">a</span><span class="p">.</span><span class="nx">addition</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>The first argument of <tt class="docutils literal"><span class="pre">$.ajax()</span></tt> is the URL to send the request.</p>
+<p>The second argument is a dictionary that can contains a lot of parameters. Here are the parameters we use:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">type</span></tt> is the type of HTTP request. Here we use the POST method.</li>
+<li><tt class="docutils literal"><span class="pre">dataType:</span> <span class="pre">&quot;json&quot;</span></tt> is used to inform jQuery that the server will return JSON, so it can read that JSON and return</li>
+</ul>
+<p>JavaScript objects instead of a simple string.
+* <tt class="docutils literal"><span class="pre">data</span></tt> is the data we send to the server. Here we want to send a JSON string containing a dictionary with two keys
+&#8216;a&#8217; and &#8216;b&#8217;. We have to call the method <tt class="docutils literal"><span class="pre">JSON.stringify</span></tt>, a standard method in JavaScript to convert objects to
+JSON strings.
+* <tt class="docutils literal"><span class="pre">contentType</span></tt> is the MIME type of the data we send to the server. The value we use informs the server that we are
+sending JSON.</p>
+<p>The <tt class="docutils literal"><span class="pre">$.ajax()</span></tt> returns what is called a <em>promise</em>. Promises are objects created by jQuery that we will explain later.
+For now, just understand that when we call the <tt class="docutils literal"><span class="pre">then()</span></tt> method on that promise it will bind a function to be called
+when we receive the result from the server. That first argument of that function is the JSON object returned by the
+<tt class="docutils literal"><span class="pre">/service_plus</span></tt> web service.</p>
+<p>The <tt class="docutils literal"><span class="pre">$.ajax()</span></tt> contains a lot more parameters to send any type of HTTP requests. To know more about them, please
+read jQuery&#8217;s documentation: <a class="reference external" href="http://api.jquery.com/jQuery.ajax/">http://api.jquery.com/jQuery.ajax/</a> .</p>
+</div>
+<div class="section" id="promises-and-deferreds">
+<h3>Promises and Deferreds<a class="headerlink" href="#promises-and-deferreds" title="Permalink to this headline">¶</a></h3>
+<p>As a language (and runtime), JavaScript is fundamentally single-threaded. This means any blocking request or computation
+will block the whole page (and, in older browsers, the software itself even preventing users from switching to an other
+tab): a JavaScript environment can be seen as an event-based runloop where application developers have no control over
+the runloop itself.</p>
+<p>As a result, performing long-running synchronous network requests or other types of complex and expensive accesses is
+frowned upon and asynchronous APIs are used instead.</p>
+<p>Asynchronous code rarely comes naturally, especially to developers used to synchronous server-side code (in Python,
+Java or C#) where the code will just block until the deed is gone. This is compounded by asynchronous
+programming not being a first-class concept and being implemented using callbacks-based programming, which is the
+case in JavaScript.</p>
+<p>This part will provide some tools to deal with asynchronous systems, and warn against common issues and pitfalls.</p>
+<p>Deferreds are a form of promises. OpenERP Web currently uses jQuery&#8217;s deferreds.</p>
+<p>The core idea of deferreds is that potentially asynchronous methods will return a Deferred() object instead of an
+arbitrary value or (most commonly) nothing. Deferreds can be seen as a promise to a value or error. This object
+can then be used to track the end of the asynchronous operation by adding callbacks onto it, either success
+callbacks or error callbacks.</p>
+<p>A great advantage of deferreds over simply passing callback functions directly to asynchronous methods is the ability to
+compose them.</p>
+<p>Deferreds&#8217;s most important method is <tt class="docutils literal"><span class="pre">$.Deferred.then()</span></tt>. It is used to attach new callbacks to the deferred object.
+The first parameter attaches a success callback, called when the deferred object is successfully resolved and provided
+with the resolved value(s) for the asynchronous operation.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(...).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Asynchronous operation completed, the value is:&quot;</span><span class="p">,</span> <span class="nx">a</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>The second parameter attaches a failure callback, called when the deferred object is rejected and provided with
+rejection values (often some sort of error message).</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(...).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span>
+<span class="p">},</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;The asynchronous operation failed&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>Callbacks attached to deferreds are never &#8220;lost&#8221;: if a callback is attached to an already resolved or rejected deferred,
+the callback will be called (or ignored) immediately.</p>
+<p>To demonstrate this we can create our own <tt class="docutils literal"><span class="pre">$.Deferred</span></tt> instance and call the <tt class="docutils literal"><span class="pre">resolve()</span></tt> method to resolve it:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">def</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">Deferred</span><span class="p">();</span>
+<span class="nx">def</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+<span class="nx">def</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;operation succeeded&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="c1">// the message &quot;operation succeeded&quot; will appear, even if the deferred was already resolved when we call then()</span>
+</pre></div>
+</div>
+<p>A deferred is also only ever resolved or rejected once, and is either resolved or rejected: a given deferred can not
+call a single success callback twice, or call both a success and a failure callbacks. Example:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">def</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">Deferred</span><span class="p">();</span>
+<span class="nx">def</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;operation succeeded&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nx">def</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+<span class="nx">def</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+<span class="c1">// the message &quot;operation succeeded&quot; will appear only once in the console, because the second call to resolve()</span>
+<span class="c1">// will not make the deferred call its binded functions a second time</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="composing-deferreds">
+<h3>Composing Deferreds<a class="headerlink" href="#composing-deferreds" title="Permalink to this headline">¶</a></h3>
+<p>Deferreds truly shine when code needs to compose asynchronous operations in some way or other, as they can be used as a
+basis for such composition.</p>
+<p>There are two main forms of compositions over deferred: multiplexing and chaining.</p>
+<div class="section" id="deferred-multiplexing">
+<h4>Deferred Multiplexing<a class="headerlink" href="#deferred-multiplexing" title="Permalink to this headline">¶</a></h4>
+<p>The most common reason for multiplexing deferred is simply performing 2+ asynchronous operations and wanting to wait
+until all of them are done before moving on (and perform more operations).</p>
+<p>The jQuery multiplexing function for promises is <tt class="docutils literal"><span class="pre">$.when()</span></tt>. This function can take any number of promises and will
+return a new promise. This returned promise will be resolved when all multiplexed promises are resolved, and will be
+rejected as soon as one of the multiplexed promises is rejected.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">def1</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="s2">&quot;/service_plus&quot;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+    <span class="nx">dataType</span><span class="o">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+    <span class="nx">data</span><span class="o">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+        <span class="s2">&quot;a&quot;</span><span class="o">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;b&quot;</span><span class="o">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="p">}),</span>
+    <span class="nx">contentType</span><span class="o">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+<span class="p">});</span>
+
+<span class="kd">var</span> <span class="nx">def2</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="s2">&quot;/service_plus&quot;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+    <span class="nx">dataType</span><span class="o">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+    <span class="nx">data</span><span class="o">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+        <span class="s2">&quot;a&quot;</span><span class="o">:</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="s2">&quot;b&quot;</span><span class="o">:</span> <span class="mi">7</span><span class="p">,</span>
+    <span class="p">}),</span>
+    <span class="nx">contentType</span><span class="o">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+<span class="p">});</span>
+
+<span class="nx">$</span><span class="p">.</span><span class="nx">when</span><span class="p">(</span><span class="nx">def1</span><span class="p">,</span> <span class="nx">def2</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result1</span><span class="p">,</span> <span class="nx">result2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;3+5=&quot;</span><span class="p">,</span> <span class="nx">result1</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">addition</span><span class="p">);</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;6+7=&quot;</span><span class="p">,</span> <span class="nx">result2</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">addition</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>The arguments given to the function bound to the promise returned by <tt class="docutils literal"><span class="pre">$.when()</span></tt> are a little complicated. For each
+promise passed to <tt class="docutils literal"><span class="pre">$.when()</span></tt>, the function will receive a parameter. Each parameter is an array containing all the
+parameters that would have been passed to a function bound on the original deferred. So, if we want the first parameter
+of that function we have to use <tt class="docutils literal"><span class="pre">result1[0]</span></tt>.</p>
+</div>
+<div class="section" id="deferred-chaining">
+<h4>Deferred Chaining<a class="headerlink" href="#deferred-chaining" title="Permalink to this headline">¶</a></h4>
+<p>A second useful composition is starting an asynchronous operation as the result of an other asynchronous operation, and
+wanting the result of the second one.</p>
+<p>To do so, the function you bind to the deferred using <tt class="docutils literal"><span class="pre">then()</span></tt> must return another deferred. Example:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">def1</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="s2">&quot;/service_mult&quot;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+    <span class="nx">dataType</span><span class="o">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+    <span class="nx">data</span><span class="o">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+        <span class="s2">&quot;a&quot;</span><span class="o">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;b&quot;</span><span class="o">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="p">}),</span>
+    <span class="nx">contentType</span><span class="o">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">def2</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="s2">&quot;/service_mult&quot;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="nx">type</span><span class="o">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+        <span class="nx">dataType</span><span class="o">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+        <span class="nx">data</span><span class="o">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+            <span class="s2">&quot;a&quot;</span><span class="o">:</span> <span class="nx">result</span><span class="p">.</span><span class="nx">multiplication</span><span class="p">,</span>
+            <span class="s2">&quot;b&quot;</span><span class="o">:</span> <span class="mi">7</span><span class="p">,</span>
+        <span class="p">}),</span>
+        <span class="nx">contentType</span><span class="o">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">def2</span><span class="p">;</span>
+<span class="p">});</span>
+
+<span class="nx">def1</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;3*5*7=&quot;</span><span class="p">,</span> <span class="nx">result</span><span class="p">.</span><span class="nx">multiplication</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>To understand why this works, it is important to know that <tt class="docutils literal"><span class="pre">then()</span></tt> returns a new promise. That promise represents
+the result of the execution of the given function after the deferred was resolved. If the bound function returns a new
+promise the result of the call to <tt class="docutils literal"><span class="pre">then()</span></tt> <em>becomes</em> an equivalent of that new promise. So, in the code above <tt class="docutils literal"><span class="pre">def1</span></tt>
+and <tt class="docutils literal"><span class="pre">def2</span></tt> are promises which will be resolved at the same time and with the same arguments (except if the first call
+to <tt class="docutils literal"><span class="pre">ajax()</span></tt> fails, in that case the second call to <tt class="docutils literal"><span class="pre">ajax()</span></tt> will never happen and <tt class="docutils literal"><span class="pre">def2</span></tt> will be marked as
+<tt class="docutils literal"><span class="pre">rejected</span></tt>).</p>
+</div>
+<div class="section" id="best-practices-when-using-asynchronous-code">
+<h4>Best Practices When Using Asynchronous Code<a class="headerlink" href="#best-practices-when-using-asynchronous-code" title="Permalink to this headline">¶</a></h4>
+<p>In real-world situations asynchronous calls can result in fairly complex code: big programs can call hundreds of
+functions. Even if only a small number of those functions perform asynchronous operations they will affect the whole
+program. This is why jQuery&#8217;s deferreds are very useful: they provide a generic structure for asynchronous code
+execution and, thanks to deferreds composition, it becomes possible to simplify any situation to a single deferred.</p>
+<p>A simple practice to remember when using deferreds is to always return a deferred in all functions that perform
+asynchronous operations. This is due to the fact that any other function calling that function could need to know when
+it has finished.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="kd">function</span> <span class="nx">func1</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">def1</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(...);</span> <span class="c1">// A first call to the server.</span>
+    <span class="kd">var</span> <span class="nx">def2</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(...);</span> <span class="c1">// A second call.</span>
+
+    <span class="kd">var</span> <span class="nx">def3</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">when</span><span class="p">(</span><span class="nx">def1</span><span class="p">,</span> <span class="nx">def2</span><span class="p">);</span> <span class="c1">// We multiplex all that.</span>
+    <span class="kd">var</span> <span class="nx">def4</span> <span class="o">=</span> <span class="nx">def3</span><span class="p">.</span><span class="nx">then</span><span class="p">(...);</span> <span class="c1">// Some more complexity: we chain it.</span>
+
+    <span class="c1">// Now we don&#39;t forget to return a deferred that represents the complete operation.</span>
+    <span class="k">return</span> <span class="nx">def4</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kd">function</span> <span class="nx">func2</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">def</span> <span class="o">=</span> <span class="nx">func1</span><span class="p">();</span> <span class="c1">// We want to call func1().</span>
+
+    <span class="c1">// Now if I need to know when func1() has finished all its operations I have a deferred that represents that.</span>
+    <span class="kd">var</span> <span class="nx">def2</span> <span class="o">=</span> <span class="nx">def</span><span class="p">.</span><span class="nx">then</span><span class="p">(...);</span>
+
+    <span class="c1">// And finally we don&#39;t forget to return a deferred because func2() is, by transitivity, a function</span>
+    <span class="c1">// that performs an asynchronous call. So it should return a deferred too.</span>
+    <span class="k">return</span> <span class="nx">def2</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="exercises">
+<h3>Exercises<a class="headerlink" href="#exercises" title="Permalink to this headline">¶</a></h3>
+<div class="topic">
+<p class="topic-title first">Exercise - Usage of Deferreds</p>
+<p>Create a function that takes 4 parameters: <tt class="docutils literal"><span class="pre">a</span></tt>, <tt class="docutils literal"><span class="pre">b</span></tt>, <tt class="docutils literal"><span class="pre">c</span></tt> and <tt class="docutils literal"><span class="pre">d</span></tt>. It must return a deferred resolved with
+the result of the mathematical operation <tt class="docutils literal"><span class="pre">(a</span> <span class="pre">+</span> <span class="pre">b)</span> <span class="pre">*</span> <span class="pre">(c</span> <span class="pre">+</span> <span class="pre">d)</span></tt>. Do not use any of the mathematical operators of
+JavaScript, you must use the <tt class="docutils literal"><span class="pre">/service_plus</span></tt> and <tt class="docutils literal"><span class="pre">/service_mult</span></tt> web services and combine deferreds properly
+to return a single deferred with the result of the whole operation.</p>
+</div>
+<p><strong>Solution:</strong></p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="nx">app</span> <span class="o">=</span> <span class="p">{};</span>
+
+    <span class="kd">function</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;button&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">plusmultplus</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;(1+2)*(3+4)=&quot;</span><span class="p">,</span> <span class="nx">result</span><span class="p">.</span><span class="nx">multiplication</span><span class="p">);</span>
+            <span class="p">});</span>
+        <span class="p">});</span>
+    <span class="p">};</span>
+    <span class="nx">app</span><span class="p">.</span><span class="nx">main</span> <span class="o">=</span> <span class="nx">main</span><span class="p">;</span>
+
+    <span class="kd">function</span> <span class="nx">plusmultplus</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">c</span><span class="p">,</span> <span class="nx">d</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">def1</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="s2">&quot;/service_plus&quot;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="nx">type</span><span class="o">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+            <span class="nx">dataType</span><span class="o">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+            <span class="nx">data</span><span class="o">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+                <span class="s2">&quot;a&quot;</span><span class="o">:</span> <span class="nx">a</span><span class="p">,</span>
+                <span class="s2">&quot;b&quot;</span><span class="o">:</span> <span class="nx">b</span><span class="p">,</span>
+            <span class="p">}),</span>
+            <span class="nx">contentType</span><span class="o">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+        <span class="p">});</span>
+        <span class="kd">var</span> <span class="nx">def2</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="s2">&quot;/service_plus&quot;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="nx">type</span><span class="o">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+            <span class="nx">dataType</span><span class="o">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+            <span class="nx">data</span><span class="o">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+                <span class="s2">&quot;a&quot;</span><span class="o">:</span> <span class="nx">c</span><span class="p">,</span>
+                <span class="s2">&quot;b&quot;</span><span class="o">:</span> <span class="nx">d</span><span class="p">,</span>
+            <span class="p">}),</span>
+            <span class="nx">contentType</span><span class="o">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+        <span class="p">});</span>
+
+        <span class="k">return</span> <span class="nx">$</span><span class="p">.</span><span class="nx">when</span><span class="p">(</span><span class="nx">def1</span><span class="p">,</span> <span class="nx">def2</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result1</span><span class="p">,</span> <span class="nx">result2</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="s2">&quot;/service_mult&quot;</span><span class="p">,</span> <span class="p">{</span>
+                <span class="nx">type</span><span class="o">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+                <span class="nx">dataType</span><span class="o">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+                <span class="nx">data</span><span class="o">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+                    <span class="s2">&quot;a&quot;</span><span class="o">:</span> <span class="nx">result1</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">addition</span><span class="p">,</span>
+                    <span class="s2">&quot;b&quot;</span><span class="o">:</span> <span class="nx">result2</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">addition</span><span class="p">,</span>
+                <span class="p">}),</span>
+                <span class="nx">contentType</span><span class="o">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+            <span class="p">});</span>
+        <span class="p">});</span>
+    <span class="p">};</span>
+
+<span class="p">})();</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">JavaScript Libraries</a><ul>
+<li><a class="reference internal" href="#a-first-javascript-application">A First JavaScript Application</a><ul>
+<li><a class="reference internal" href="#download-and-launch-the-start-application">Download and Launch the Start Application</a></li>
+<li><a class="reference internal" href="#architecture-of-the-application">Architecture of the Application</a></li>
+<li><a class="reference internal" href="#the-module-pattern">The Module Pattern</a></li>
+<li><a class="reference internal" href="#debugging-tools">Debugging Tools</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#underscore-js">Underscore.js</a></li>
+<li><a class="reference internal" href="#html-manipulations-with-jquery">HTML Manipulations with jQuery</a><ul>
+<li><a class="reference internal" href="#the-dom">The DOM</a></li>
+<li><a class="reference internal" href="#jquery-selectors">jQuery Selectors</a></li>
+<li><a class="reference internal" href="#jquery-events">jQuery Events</a></li>
+<li><a class="reference internal" href="#dom-modifications-with-jquery">DOM Modifications with jQuery</a></li>
+<li><a class="reference internal" href="#exercise">Exercise</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#http-requests-with-jquery">HTTP Requests with jQuery</a><ul>
+<li><a class="reference internal" href="#the-ajax-method">The <tt class="docutils literal"><span class="pre">$.ajax()</span></tt> method</a></li>
+<li><a class="reference internal" href="#promises-and-deferreds">Promises and Deferreds</a></li>
+<li><a class="reference internal" href="#composing-deferreds">Composing Deferreds</a><ul>
+<li><a class="reference internal" href="#deferred-multiplexing">Deferred Multiplexing</a></li>
+<li><a class="reference internal" href="#deferred-chaining">Deferred Chaining</a></li>
+<li><a class="reference internal" href="#best-practices-when-using-asynchronous-code">Best Practices When Using Asynchronous Code</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#exercises">Exercises</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="javascript.html"
+                        title="previous chapter">JavaScript Basics</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="web_framework.html"
+                        title="next chapter">OpenERP Web Framework</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/firstapp.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="web_framework.html" title="OpenERP Web Framework"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="javascript.html" title="JavaScript Basics"
+             >previous</a> |</li>
+        <li><a href="index.html">OpenERP Web Training 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, OpenERP SA.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

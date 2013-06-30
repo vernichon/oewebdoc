@@ -1,0 +1,42 @@
+
+Introduction
+============
+
+
+Reminder about OpenERP Structure
+--------------------------------
+
+OpenERP contains the following parts:
+
+.. image:: img/architecture.png
+   :align: center
+   :width: 70%
+
+* The OpenERP server contains the server-side framework and handles requests coming from clients.
+* The PostgreSQL database contains our data.
+* The modules implement the business logic.
+* The client web application communicates with the server and displays a graphical user interface.
+
+This guide is all about web applications development and the OpenERP's web client.
+
+About this Guide
+----------------
+
+This guide is a training material to teach OpenERP integrators how to create web modules for OpenERP. The covered
+subjects are the following:
+
+* Javascript basics and good practices
+* Basics of jQuery and Underscore (Javascript libraries used in OpenERP's web client)
+* OpenERP's Javascript and web applications framework
+* Extension points for OpenERP's web client
+
+This guide assumes the reader followed the technical training about OpenERP modules creation provided by OpenERP SA or
+have a good knowledge of Python modules development. This guide also assume the reader is experienced in object-oriented
+programming and has basic knowledge of at least one programming language whose syntax is based on C (C++, Java, C#,...).
+It may also refer to the Bazaar version control system. Finally, it is necessary to have a minimal knowledge of HTML and
+CSS.
+
+All provided examples assume you are developing under a Linux operating system, most specifically Ubuntu or Debian. If
+you are using Windows, we recommend you to get a virtual machine with Ubuntu. The website http://virtualboxes.org/
+provides pre-installed virtual machines images for a lot of Linux distributions for free. They only require to install
+Virtual Box which is also free.

@@ -1,0 +1,23 @@
+
+Welcome to OpenERP Web Training
+===============================
+
+Contents:
+
+.. toctree::
+   :maxdepth: 2
+
+   intro
+   javascript
+   firstapp
+   web_framework
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+

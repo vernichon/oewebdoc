@@ -1,0 +1,1430 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OpenERP Web Framework &mdash; OpenERP Web Training 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="OpenERP Web Training 1.0 documentation" href="index.html" />
+    <link rel="prev" title="JavaScript Libraries" href="firstapp.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="firstapp.html" title="JavaScript Libraries"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">OpenERP Web Training 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="openerp-web-framework">
+<h1>OpenERP Web Framework<a class="headerlink" href="#openerp-web-framework" title="Permalink to this headline">¶</a></h1>
+<p>In the first part of this guide, we explained the JavaScript language and some libraries commonly used with it (jQuery
+and Underscore.js). Still, we lack some serious features to be able to program effectively for a big program like
+OpenERP. We don&#8217;t really have tools for object oriented programming, no structure for graphical user interfaces
+conception, our helpers to request data from the server are too basic, etc...</p>
+<p>That&#8217;s why the OpenERP web client contains a web development framework to provide structure and the necessary features
+for everyday programming. The current part will explain that framework.</p>
+<div class="section" id="a-simple-module-to-test-the-web-framework">
+<h2>A Simple Module to Test the Web Framework<a class="headerlink" href="#a-simple-module-to-test-the-web-framework" title="Permalink to this headline">¶</a></h2>
+<p>It&#8217;s not really possible to include the multiple JavaScript files that constitute the OpenERP web framework in a simple
+HTML file like we did in the previous chapter. So we will create a simple module in OpenERP that contains some
+configuration to have a web component that will give us the possibility to test the web framework.</p>
+<p>To download the example module, use this bazaar command:</p>
+<div class="highlight-sh"><div class="highlight"><pre>bzr branch bzr+ssh://bazaar.launchpad.net/~niv-openerp/+junk/oepetstore/ -r 1
+</pre></div>
+</div>
+<p>Now you must add that folder to your the addons path when you launch OpenERP (<tt class="docutils literal"><span class="pre">--addons-path</span></tt> parameter when you
+launch the <tt class="docutils literal"><span class="pre">openerp-server</span></tt> executable). Then create a new database and install the new module <tt class="docutils literal"><span class="pre">oepetstore</span></tt>.</p>
+<p>Now let&#8217;s see what files exist in that module:</p>
+<div class="highlight-text"><div class="highlight"><pre>oepetstore
+|-- __init__.py
+|-- __openerp__.py
+|-- petstore_data.xml
+|-- petstore.py
+|-- petstore.xml
+`-- static
+    `-- src
+        |-- css
+        |   `-- petstore.css
+        |-- js
+        |   `-- petstore.js
+        `-- xml
+            `-- petstore.xml
+</pre></div>
+</div>
+<p>This new module already contains some customization that should be easy to understand if you already coded an OpenERP
+module like a new table, some views, menu items, etc... We&#8217;ll come back to these elements later because they will
+be useful to develop some example web module. Right now let&#8217;s concentrate on the essential: the files dedicated to web
+development.</p>
+<p>Please note that all files to be used in the web part of an OpenERP module must always be placed in a <tt class="docutils literal"><span class="pre">static</span></tt> folder
+inside the module. This is mandatory due to possible security issues. The fact we created the folders <tt class="docutils literal"><span class="pre">css</span></tt>, <tt class="docutils literal"><span class="pre">js</span></tt>
+and <tt class="docutils literal"><span class="pre">xml</span></tt> is just a convention.</p>
+<p><tt class="docutils literal"><span class="pre">oepetstore/static/css/petstore.css</span></tt> is our CSS file. It is empty right now but we will add any CSS we need later.</p>
+<p><tt class="docutils literal"><span class="pre">oepetstore/static/xml/petstore.xml</span></tt> is an XML file that will contain our QWeb templates. Right now it is almost
+empty too. Those templates will be explained later, in the part dedicated to QWeb templates.</p>
+<p><tt class="docutils literal"><span class="pre">oepetstore/static/js/petstore.js</span></tt> is probably the most interesting part. It contains the JavaScript of our
+application. Here is what it looks like right now:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">openerp</span><span class="p">.</span><span class="nx">oepetstore</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">instance</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">_t</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">_t</span><span class="p">,</span>
+        <span class="nx">_lt</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">_lt</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">QWeb</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">qweb</span><span class="p">;</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span> <span class="o">=</span> <span class="p">{};</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">HomePage</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+        <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;pet store home page loaded&quot;</span><span class="p">);</span>
+        <span class="p">},</span>
+    <span class="p">});</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">client_actions</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="s1">&#39;petstore.homepage&#39;</span><span class="p">,</span> <span class="s1">&#39;instance.oepetstore.HomePage&#39;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The multiple components of that file will explained progressively. Just know that it doesn&#8217;t do much things right
+now except display a blank page and print a small message in the console.</p>
+<p>Like OpenERP&#8217;s XML files containing views or data, these files must be indicated in the <tt class="docutils literal"><span class="pre">__openerp__.py</span></tt> file. Here
+are the lines we added to explain to the web client it has to load these files:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="s1">&#39;js&#39;</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;static/src/js/*.js&#39;</span><span class="p">],</span>
+<span class="s1">&#39;css&#39;</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;static/src/css/*.css&#39;</span><span class="p">],</span>
+<span class="s1">&#39;qweb&#39;</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;static/src/xml/*.xml&#39;</span><span class="p">],</span>
+</pre></div>
+</div>
+<p>These configuration parameters use wildcards, so we can add new files without altering <tt class="docutils literal"><span class="pre">__openerp__.py</span></tt>:
+they will be loaded by the web client as long as they have the correct extension and are in the correct folder.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>In OpenERP, all JavaScript files are, by default, concatenated in a single file. Then we apply an operation called
+the <em>minification</em> on that file. The minification will remove all comments, white spaces and line-breaks in the
+file. Finally, it is sent to the user&#8217;s browser.</p>
+<p>That operation may seem complex, but it&#8217;s a common procedure in big application like OpenERP with a lot of
+JavaScript files. It allows to load the application a lot faster.</p>
+<p>It has the main drawback to make the application almost impossible to debug, which is very bad to develop. The
+solution to avoid this side-effect and still be able to debug is to append a small argument to the URL used to
+load OpenERP: <tt class="docutils literal"><span class="pre">?debug</span></tt>. So the URL will look like this:</p>
+<div class="highlight-text"><div class="highlight"><pre>http://localhost:8069/?debug
+</pre></div>
+</div>
+<p class="last">When you use that type of URL, the application will not perform all that concatenation-minification process on the
+JavaScript files. The application will take more time to load but you will be able to develop with decent
+debugging tools.</p>
+</div>
+</div>
+<div class="section" id="openerp-javascript-module">
+<h2>OpenERP JavaScript Module<a class="headerlink" href="#openerp-javascript-module" title="Permalink to this headline">¶</a></h2>
+<p>In the previous chapter, we explained that JavaScript do not have a correct mechanism to namespace the variables
+declared in different JavaScript files and we proposed a simple method called the Module pattern.</p>
+<p>In OpenERP&#8217;s web framework there is an equivalent of that pattern which is integrated with the rest of the framework.
+Please note that <strong>an OpenERP web module is a separate concept from an OpenERP addon</strong>. An addon is a folder with
+a lot of files, a web module is not much more than a namespace for JavaScript.</p>
+<p>The <tt class="docutils literal"><span class="pre">oepetstore/static/js/petstore.js</span></tt> already declare such a module:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">openerp</span><span class="p">.</span><span class="nx">oepetstore</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">instance</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span> <span class="o">=</span> <span class="p">{};</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">xxx</span> <span class="o">=</span> <span class="p">...;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In OpenERP&#8217;s web framework, you declare a JavaScript module by declaring a function that you put in the global variable
+<tt class="docutils literal"><span class="pre">openerp</span></tt>. The attribute you set in that object must have the exact same name than your OpenERP addon (this addon
+is named <tt class="docutils literal"><span class="pre">oepetstore</span></tt>, if I set <tt class="docutils literal"><span class="pre">openerp.petstore</span></tt> instead of <tt class="docutils literal"><span class="pre">openerp.oepetstore</span></tt> that will not work).</p>
+<p>That function will be called when the web client decides to load your addon. It is given a parameter named <tt class="docutils literal"><span class="pre">instance</span></tt>,
+which represents the current OpenERP web client instance and contains all the data related to the current session as well
+as the variables of all web modules.</p>
+<p>The convention is to create a new namespace inside the <tt class="docutils literal"><span class="pre">instance</span></tt> object which has the same name than you addon.
+That&#8217;s why we set an empty dictionary in <tt class="docutils literal"><span class="pre">instance.oepetstore</span></tt>. That dictionary is the namespace we will use to
+declare all classes and variables used inside our module.</p>
+</div>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<p>JavaScript doesn&#8217;t have a class mechanism like most object-oriented programming languages. To be more exact, it provides
+language elements to make object-oriented programming but you have to define by yourself how you choose to do it.
+OpenERP&#8217;s web framework provide tools to simplify this and let programmers code in a similar way they would program
+in other languages like Java. That class system is heavily inspired by John Resig&#8217;s <a class="reference external" href="http://ejohn.org/blog/simple-javascript-inheritance/">Simple JavaScript Inheritance</a>.</p>
+<p>To define a new class, you need to inherit from the <tt class="docutils literal"><span class="pre">instance.web.Class</span></tt> class. Here is the syntax to do so:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MyClass</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Class</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">say_hello</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">);</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>As you can see, you have to call the <tt class="docutils literal"><span class="pre">instance.web.Class.extend()</span></tt> method and give it a dictionary. That dictionary
+will contain the methods and class attributes of our new class. Here we simply put a method named <tt class="docutils literal"><span class="pre">say_hello()</span></tt>. This
+class can be instantiated and used like this:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">my_object</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MyClass</span><span class="p">();</span>
+<span class="nx">my_object</span><span class="p">.</span><span class="nx">say_hello</span><span class="p">();</span>
+<span class="c1">// print &quot;hello&quot; in the console</span>
+</pre></div>
+</div>
+<p>You can access the attributes of a class inside a method using <tt class="docutils literal"><span class="pre">this</span></tt>:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MyClass</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Class</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">say_hello</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+
+<span class="kd">var</span> <span class="nx">my_object</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MyClass</span><span class="p">();</span>
+<span class="nx">my_object</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="s2">&quot;Nicolas&quot;</span><span class="p">;</span>
+<span class="nx">my_object</span><span class="p">.</span><span class="nx">say_hello</span><span class="p">();</span>
+<span class="c1">// print &quot;hello Nicolas&quot; in the console</span>
+</pre></div>
+</div>
+<p>Classes can have a constructor, it is just a method named <tt class="docutils literal"><span class="pre">init()</span></tt>. You can pass parameters to the constructor like
+in most language:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MyClass</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Class</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">init</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">name</span><span class="p">;</span>
+    <span class="p">},</span>
+    <span class="nx">say_hello</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+
+<span class="kd">var</span> <span class="nx">my_object</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MyClass</span><span class="p">(</span><span class="s2">&quot;Nicolas&quot;</span><span class="p">);</span>
+<span class="nx">my_object</span><span class="p">.</span><span class="nx">say_hello</span><span class="p">();</span>
+<span class="c1">// print &quot;hello Nicolas&quot; in the console</span>
+</pre></div>
+</div>
+<p>Classes can be inherited. To do so, use the <tt class="docutils literal"><span class="pre">extend()</span></tt> directly on your class just like you extended the
+<tt class="docutils literal"><span class="pre">instance.web.Class</span></tt> class:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MySpanishClass</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MyClass</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">say_hello</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;hola&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+
+<span class="kd">var</span> <span class="nx">my_object</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MySpanishClass</span><span class="p">(</span><span class="s2">&quot;Nicolas&quot;</span><span class="p">);</span>
+<span class="nx">my_object</span><span class="p">.</span><span class="nx">say_hello</span><span class="p">();</span>
+<span class="c1">// print &quot;hola Nicolas&quot; in the console</span>
+</pre></div>
+</div>
+<p>When overriding a method using inheritance, you can use <tt class="docutils literal"><span class="pre">this._super()</span></tt> to call the original method. <tt class="docutils literal"><span class="pre">this._super()</span></tt>
+is not a normal method of your class, you can consider it&#8217;s magic. Example:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MySpanishClass</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MyClass</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">say_hello</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">_super</span><span class="p">();</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;translation in Spanish: hola&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+
+<span class="kd">var</span> <span class="nx">my_object</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MySpanishClass</span><span class="p">(</span><span class="s2">&quot;Nicolas&quot;</span><span class="p">);</span>
+<span class="nx">my_object</span><span class="p">.</span><span class="nx">say_hello</span><span class="p">();</span>
+<span class="c1">// print &quot;hello Nicolas \n translation in Spanish: hola Nicolas&quot; in the console</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="widgets-basics">
+<h2>Widgets Basics<a class="headerlink" href="#widgets-basics" title="Permalink to this headline">¶</a></h2>
+<p>In previous chapter we discovered jQuery and its DOM manipulation tools. It&#8217;s useful, but it&#8217;s not sufficient to
+structure a real application. Graphical user interface libraries like Qt, GTK or Windows Forms have classes to
+represent visual components. In OpenERP, we have the <tt class="docutils literal"><span class="pre">Widget</span></tt> class. A widget is a generic component dedicated to
+display content to the user.</p>
+<div class="section" id="the-client-action">
+<h3>The Client Action<a class="headerlink" href="#the-client-action" title="Permalink to this headline">¶</a></h3>
+<p>The start module you installed already contains a small widget, it&#8217;s also what we call a <tt class="docutils literal"><span class="pre">client</span> <span class="pre">action</span></tt>. See the
+code:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">HomePage</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;pet store home page loaded&quot;</span><span class="p">);</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+
+<span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">client_actions</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="s1">&#39;petstore.homepage&#39;</span><span class="p">,</span> <span class="s1">&#39;instance.oepetstore.HomePage&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Here we create a simple widget by extending the <tt class="docutils literal"><span class="pre">instance.web.Widget</span></tt> class. This one defines a method named
+<tt class="docutils literal"><span class="pre">start()</span></tt> that doesn&#8217;t do anything really interesting right now. We&#8217;ll come back on that method later.</p>
+<p>The last line registers our basic widget as a client action. To understand the usefulness of this, take a
+look at the OpenERP action definition located at the beginning of the <tt class="docutils literal"><span class="pre">oepetstore/petstore.xml</span></tt> OpenERP XML data file:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;record</span> <span class="na">id=</span><span class="s">&quot;action_home_page&quot;</span> <span class="na">model=</span><span class="s">&quot;ir.actions.client&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>Inbox<span class="nt">&lt;/field&gt;</span>
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;tag&quot;</span><span class="nt">&gt;</span>petstore.homepage<span class="nt">&lt;/field&gt;</span>
+<span class="nt">&lt;/record&gt;</span>
+
+<span class="nt">&lt;menuitem</span> <span class="na">id=</span><span class="s">&quot;home_page_petstore_menu&quot;</span> <span class="na">name=</span><span class="s">&quot;Home Page&quot;</span> <span class="na">parent=</span><span class="s">&quot;petstore_menu&quot;</span>
+    <span class="na">action=</span><span class="s">&quot;action_home_page&quot;</span><span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<p>If you are an OpenERP addon programmer, should already know at least one type of action: the action <tt class="docutils literal"><span class="pre">act_window</span></tt>. That
+type of action displays an OpenERP view like a form view, a list view or any other type of standard OpenERP view. Here
+we declare a different type of OpenERP action: a client action.</p>
+<p>Client actions are dedicated to be used with a web module part. That action simply tells OpenERP&#8217;s web client &#8220;open the
+client action identified by the key <tt class="docutils literal"><span class="pre">petstore.homepage</span></tt>&#8221;. Let&#8217;s come back to the JavaScript code that declared our
+client action:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">client_actions</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="s1">&#39;petstore.homepage&#39;</span><span class="p">,</span> <span class="s1">&#39;instance.oepetstore.HomePage&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Calling the <tt class="docutils literal"><span class="pre">instance.web.client_actions.add()</span></tt> method like this simply tells the web client &#8220;If someone asks you to
+open a client action with key <tt class="docutils literal"><span class="pre">petstore.homepage</span></tt>, instantiate the <tt class="docutils literal"><span class="pre">instance.oepetstore.HomePage</span></tt> class and show
+it to the user&#8221;.</p>
+<p>Due to this declaration, if you go in the menu <tt class="docutils literal"><span class="pre">Pet</span> <span class="pre">Store</span> <span class="pre">&gt;</span> <span class="pre">Pet</span> <span class="pre">Store</span> <span class="pre">&gt;</span> <span class="pre">Home</span> <span class="pre">Page</span></tt> you will see an empty page, but
+the JavaScript console will print &#8220;pet store home page loaded&#8221;. This means the widget was correctly loaded and we can
+start to use it to test OpenERP&#8217;s widgets.</p>
+</div>
+<div class="section" id="display-content">
+<h3>Display Content<a class="headerlink" href="#display-content" title="Permalink to this headline">¶</a></h3>
+<p>Widgets have a lot of methods and features, but let&#8217;s start with the basics: display some data inside the widget and
+how to instantiate a widget and display it.</p>
+<p>The <tt class="docutils literal"><span class="pre">HomePage</span></tt> widget already has a <tt class="docutils literal"><span class="pre">start()</span></tt> method. That method is automatically called after the widget has been
+instantiated and it has received the order to display its content. We will use it to display some content to the user.</p>
+<p>To do so, we will also use the <tt class="docutils literal"><span class="pre">$el</span></tt> attribute that all widgets contain. That attribute is a jQuery object with a
+reference to the HTML element that represent the root of our widget. A widget can contain multiple HTML elements, but
+they must be contained inside one single element. By default, all widgets have an empty root element which is a
+<tt class="docutils literal"><span class="pre">&lt;div&gt;</span></tt> HTML element.</p>
+<p>A <tt class="docutils literal"><span class="pre">&lt;div&gt;</span></tt> element in HTML is usually invisible for the user if it does not have any content. That explains why when
+the <tt class="docutils literal"><span class="pre">instance.oepetstore.HomePage</span></tt> widget is displayed you can&#8217;t see anything: it simply doesn&#8217;t have any content. To
+show something, we will use some simple jQuery methods on that object to add some HTML in our root element:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">HomePage</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="s2">&quot;&lt;div&gt;Hello dear OpenERP user!&lt;/div&gt;&quot;</span><span class="p">);</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>That message will now appear when you go to the menu <em class="menuselection">Pet Store ‣ Pet Store ‣ Home Page</em> (remember you need to refresh
+your web browser, although there is not need to restart OpenERP&#8217;s server).</p>
+<p>Now you should learn how to instantiate a widget and display its content. To do so, we will create a new widget:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">GreetingsWidget</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="s2">&quot;&lt;div&gt;We are so happy to see you again in this menu!&lt;/div&gt;&quot;</span><span class="p">);</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>Now we want to display the <tt class="docutils literal"><span class="pre">instance.oepetstore.GreetingsWidget</span></tt> inside the home page. To do so we can use the
+<tt class="docutils literal"><span class="pre">append()</span></tt> method of <tt class="docutils literal"><span class="pre">Widget</span></tt>:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">HomePage</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="s2">&quot;&lt;div&gt;Hello dear OpenERP user!&lt;/div&gt;&quot;</span><span class="p">);</span>
+        <span class="kd">var</span> <span class="nx">greeting</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">GreetingsWidget</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+        <span class="nx">greeting</span><span class="p">.</span><span class="nx">appendTo</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">);</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>Here, the <tt class="docutils literal"><span class="pre">HomePage</span></tt> instantiate a <tt class="docutils literal"><span class="pre">GreetingsWidget</span></tt> (the first argument of the constructor of <tt class="docutils literal"><span class="pre">GreetingsWidget</span></tt>
+will be explained in the next part). Then it asks the <tt class="docutils literal"><span class="pre">GreetingsWidget</span></tt> to insert itself inside the DOM, more
+precisely directly under the <tt class="docutils literal"><span class="pre">HomePage</span></tt> widget.</p>
+<p>When the <tt class="docutils literal"><span class="pre">appendTo()</span></tt> method is called, it asks the widget to insert itself and to display its content. It&#8217;s during
+the call to <tt class="docutils literal"><span class="pre">appentTo()</span></tt> that the <tt class="docutils literal"><span class="pre">start()</span></tt> method will be called.</p>
+<p>To check the consequences of that code, let&#8217;s use Chrome&#8217;s DOM explorer. But before that we will modify a little bit
+our widgets to have some classes on some of our <tt class="docutils literal"><span class="pre">&lt;div&gt;</span></tt> elements so we can clearly see them in the explorer:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">HomePage</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="s2">&quot;oe_petstore_homepage&quot;</span><span class="p">);</span>
+        <span class="p">...</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+<span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">GreetingsWidget</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="s2">&quot;oe_petstore_greetings&quot;</span><span class="p">);</span>
+        <span class="p">...</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>The result will be this if you can find the correct DOM part in the DOM explorer:</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;oe_petstore_homepage&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div&gt;</span>Hello dear OpenERP user!<span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;oe_petstore_greetings&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div&gt;</span>We are so happy to see you again in this menu!<span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+</div>
+<p>Here we can clearly see the two <tt class="docutils literal"><span class="pre">&lt;div&gt;</span></tt> created implicitly by the <tt class="docutils literal"><span class="pre">Widget</span></tt> class, because we added some classes
+on them. We can also see the two divs containing messages we created using the jQuery methods on <tt class="docutils literal"><span class="pre">$el</span></tt>. Finally,
+note the <tt class="docutils literal"><span class="pre">&lt;div</span> <span class="pre">class=&quot;oe_petstore_greetings&quot;&gt;</span></tt> element which represents the <tt class="docutils literal"><span class="pre">GreetingsWidget</span></tt> instance is <em>inside</em>
+the <tt class="docutils literal"><span class="pre">&lt;div</span> <span class="pre">class=&quot;oe_petstore_homepage&quot;&gt;</span></tt> which represents the <tt class="docutils literal"><span class="pre">HomePage</span></tt> instance.</p>
+</div>
+<div class="section" id="widget-parents-and-children">
+<h3>Widget Parents and Children<a class="headerlink" href="#widget-parents-and-children" title="Permalink to this headline">¶</a></h3>
+<p>In the previous part, we instantiated a widget using this syntax:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">GreetingsWidget</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The first argument is <tt class="docutils literal"><span class="pre">this</span></tt>, which in that case was a <tt class="docutils literal"><span class="pre">HomePage</span></tt> instance. This serves to indicate the Widget what
+other widget is his parent.</p>
+<p>As we&#8217;ve seen, widgets are usually inserted in the DOM by another widget and <em>inside</em> that other widget. This means most
+widgets are always a part of another widget. We call the container the <em>parent</em>, and the contained widget the <em>child</em>.</p>
+<p>Due to multiple technical and conceptual reasons, it is necessary for a widget to know who is his parent and who are its
+children. This is why we have that first parameter in the constructor of all widgets.</p>
+<p>The <tt class="docutils literal"><span class="pre">getParent()</span></tt> method can be used to get the parent of a widget:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">GreetingsWidget</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getParent</span><span class="p">().</span><span class="nx">$el</span> <span class="p">);</span>
+        <span class="c1">// will print &quot;div.oe_petstore_homepage&quot; in the console</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">getChildren()</span></tt> method can be used to get a list of its children:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">HomePage</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">greeting</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">GreetingsWidget</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+        <span class="nx">greeting</span><span class="p">.</span><span class="nx">appendTo</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">);</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getChildren</span><span class="p">()[</span><span class="mi">0</span><span class="p">].</span><span class="nx">$el</span><span class="p">);</span>
+        <span class="c1">// will print &quot;div.oe_petstore_greetings&quot; in the console</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>You should also remember that, when you override the <tt class="docutils literal"><span class="pre">init()</span></tt> method of a widget you should always put the parent as
+first parameter are pass it to <tt class="docutils literal"><span class="pre">this._super()</span></tt>:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">GreetingsWidget</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">init</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">parent</span><span class="p">,</span> <span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">_super</span><span class="p">(</span><span class="nx">parent</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">name</span><span class="p">;</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>Finally, if a widget does not logically have a parent (ie: because it&#8217;s the first widget you instantiate in an
+application), you can give null as a parent instead:</p>
+<blockquote>
+<div>new instance.oepetstore.GreetingsWidget(null);</div></blockquote>
+</div>
+<div class="section" id="destroying-widgets">
+<h3>Destroying Widgets<a class="headerlink" href="#destroying-widgets" title="Permalink to this headline">¶</a></h3>
+<p>If you can display content to your users, you should also be able to erase it. This can simply be done using the
+<tt class="docutils literal"><span class="pre">destroy()</span></tt> method:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">greeting</span><span class="p">.</span><span class="nx">destroy</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>When a widget is destroyed it will first call <tt class="docutils literal"><span class="pre">destroy()</span></tt> on all its children. Then it erases itself from the DOM. The
+recursive call to destroy from parents to children is very useful to clean properly complex structures of widgets and
+avoid memory leaks that can easily appear in big JavaScript applications.</p>
+</div>
+</div>
+<div class="section" id="the-qweb-template-engine">
+<span id="qweb"></span><h2>The QWeb Template Engine<a class="headerlink" href="#the-qweb-template-engine" title="Permalink to this headline">¶</a></h2>
+<p>The previous part of the guide showed how to define widgets that are able to display HTML to the user. The example
+<tt class="docutils literal"><span class="pre">GreetingsWidget</span></tt> used a syntax like this:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="s2">&quot;&lt;div&gt;Hello dear OpenERP user!&lt;/div&gt;&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This technically allow use to display any HTML, even it is very complex and require to be generated by code. Although
+generating text using pure JavaScript is not very nice, that would necessitate to copy-paste a lot of HTML lines inside
+our JavaScript source file, add the <tt class="docutils literal"><span class="pre">&quot;</span></tt> character at the beginning and the end of each line, etc...</p>
+<p>The problem is exactly the same in most programming languages needing to generate HTML. That&#8217;s why they
+typically use template engines. Example of template engines are Velocity, JSP (Java), Mako, Jinja (Python), Smarty (PHP),
+etc...</p>
+<p>In OpenERP we use a template engine developed specifically for OpenERP&#8217;s web client. Its name is QWeb.</p>
+<p>QWeb is an XML-based templating language, similar to <a class="reference external" href="http://en.wikipedia.org/wiki/Genshi_(templating_language)">Genshi</a>, <a class="reference external" href="http://en.wikipedia.org/wiki/Thymeleaf">Thymeleaf</a> or
+<a class="reference external" href="http://en.wikipedia.org/wiki/Facelets">Facelets</a> with a few peculiarities:</p>
+<ul class="simple">
+<li>It&#8217;s implemented fully in JavaScript and rendered in the browser.</li>
+<li>Each template file (XML files) contains multiple templates, where template engine usually have a 1:1 mapping between
+template files and templates.</li>
+<li>It has special support in OpenERP Web&#8217;s <tt class="docutils literal"><span class="pre">instance.web.Widget</span></tt>, though it can be used outside of OpenERP&#8217;s web
+client (and it&#8217;s possible to use <tt class="docutils literal"><span class="pre">instance.web.Widget</span></tt> without relying on QWeb).</li>
+</ul>
+<p>The rationale behind using QWeb instead of existing javascript template engines is that its extension mechanism is very
+similar to the OpenERP view inheritance mechanism. Like OpenERP views a QWeb template is an XML tree and therefore XPath
+or DOM manipulations are easy to performs on it.</p>
+<div class="section" id="using-qweb-inside-a-widget">
+<h3>Using QWeb inside a Widget<a class="headerlink" href="#using-qweb-inside-a-widget" title="Permalink to this headline">¶</a></h3>
+<p>First let&#8217;s define a simple QWeb template in <tt class="docutils literal"><span class="pre">oepetstore/static/src/xml/petstore.xml</span></tt> file, the exact meaning will be
+explained later:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+
+<span class="nt">&lt;templates</span> <span class="na">xml:space=</span><span class="s">&quot;preserve&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;t</span> <span class="na">t-name=</span><span class="s">&quot;HomePageTemplate&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">&quot;background-color: red;&quot;</span><span class="nt">&gt;</span>This is some simple HTML<span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/t&gt;</span>
+<span class="nt">&lt;/templates&gt;</span>
+</pre></div>
+</div>
+<p>Now let&#8217;s modify the <tt class="docutils literal"><span class="pre">HomePage</span></tt> class. Remember that enigmatic line at the beginning the the JavaScript source file?</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">QWeb</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">qweb</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>This is a line we recommend to copy-paste in all OpenERP web modules. It is the object giving access to all templates
+defined in template files that were loaded by the web client. We can use the template we defined in our XML template
+file like this:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">HomePage</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">QWeb</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="s2">&quot;HomePageTemplate&quot;</span><span class="p">));</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>Calling the <tt class="docutils literal"><span class="pre">QWeb.render()</span></tt> method asks to render the template identified by the string passed as first parameter.</p>
+<p>Another possibility commonly seen in OpenERP code is to use <tt class="docutils literal"><span class="pre">Widget</span></tt>&#8216;s integration with QWeb:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">HomePage</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">template</span><span class="o">:</span> <span class="s2">&quot;HomePageTemplate&quot;</span><span class="p">,</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="p">...</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>When you put a <tt class="docutils literal"><span class="pre">template</span></tt> class attribute in a widget, the widget knows it has to call <tt class="docutils literal"><span class="pre">QWeb.render()</span></tt> to render
+that template.</p>
+<p>Please note there is a difference between those two syntaxes. When you use <tt class="docutils literal"><span class="pre">Widget</span></tt>&#8216;s QWeb integration the
+<tt class="docutils literal"><span class="pre">QWeb.render()</span></tt> method is called <em>before</em> the widget calls <tt class="docutils literal"><span class="pre">start()</span></tt>. It will also take the root element of the
+rendered template and put it as a replacement of the default root element generated by the <tt class="docutils literal"><span class="pre">Widget</span></tt> class. This will
+alter the behavior, so you should remember it.</p>
+<div class="section" id="qweb-context">
+<h4>QWeb Context<a class="headerlink" href="#qweb-context" title="Permalink to this headline">¶</a></h4>
+<p>Like with all template engines, QWeb templates can contain code able to manipulate data that is given to the template.
+To pass data to QWeb, use the second argument to <tt class="docutils literal"><span class="pre">QWeb.render()</span></tt>:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;t</span> <span class="na">t-name=</span><span class="s">&quot;HomePageTemplate&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div&gt;</span>Hello <span class="nt">&lt;t</span> <span class="na">t-esc=</span><span class="s">&quot;name&quot;</span><span class="nt">/&gt;&lt;/div&gt;</span>
+<span class="nt">&lt;/t&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">QWeb</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="s2">&quot;HomePageTemplate&quot;</span><span class="p">,</span> <span class="p">{</span><span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Nicolas&quot;</span><span class="p">});</span>
+</pre></div>
+</div>
+<p>Result:</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;div&gt;</span>Hello Nicolas<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+</div>
+<p>When you use <tt class="docutils literal"><span class="pre">Widget</span></tt>&#8216;s integration you can not pass additional data to the template. Instead the template will
+have a unique <tt class="docutils literal"><span class="pre">widget</span></tt> variable which is a reference to the current widget:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;t</span> <span class="na">t-name=</span><span class="s">&quot;HomePageTemplate&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div&gt;</span>Hello <span class="nt">&lt;t</span> <span class="na">t-esc=</span><span class="s">&quot;widget.name&quot;</span><span class="nt">/&gt;&lt;/div&gt;</span>
+<span class="nt">&lt;/t&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">HomePage</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">template</span><span class="o">:</span> <span class="s2">&quot;HomePageTemplate&quot;</span><span class="p">,</span>
+    <span class="nx">init</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">parent</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">_super</span><span class="p">(</span><span class="nx">parent</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="s2">&quot;Nicolas&quot;</span><span class="p">;</span>
+    <span class="p">},</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>Result:</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd>&lt;div&gt;Hello Nicolas&lt;/div&gt;</dd>
+</dl>
+</div>
+<div class="section" id="template-declaration">
+<h4>Template Declaration<a class="headerlink" href="#template-declaration" title="Permalink to this headline">¶</a></h4>
+<p>Now that we know everything about rendering templates we can try to understand QWeb&#8217;s syntax.</p>
+<p>All QWeb directives use XML attributes beginning with the prefix <tt class="docutils literal"><span class="pre">t-</span></tt>. To declare new templates, we add a
+<tt class="docutils literal"><span class="pre">&lt;t</span> <span class="pre">t-name=&quot;...&quot;&gt;</span></tt> element into the XML template file inside the root element <tt class="docutils literal"><span class="pre">&lt;template&gt;</span></tt>:</p>
+<div class="highlight-javascript"><pre>&lt;templates&gt;
+    &lt;t t-name="HomePageTemplate"&gt;
+        &lt;div&gt;This is some simple HTML&lt;/div&gt;
+    &lt;/t&gt;
+&lt;/templates&gt;</pre>
+</div>
+<p><tt class="docutils literal"><span class="pre">t-name</span></tt> simply declares a template that can be called using <tt class="docutils literal"><span class="pre">QWeb.render()</span></tt>.</p>
+</div>
+<div class="section" id="escaping">
+<h4>Escaping<a class="headerlink" href="#escaping" title="Permalink to this headline">¶</a></h4>
+<p>To put some text in the HTML, use <tt class="docutils literal"><span class="pre">t-esc</span></tt>:</p>
+<div class="highlight-javascript"><pre>&lt;t t-name="HomePageTemplate"&gt;
+    &lt;div&gt;Hello &lt;t t-esc="name"/&gt;&lt;/div&gt;
+&lt;/t&gt;</pre>
+</div>
+<p>This will output the variable <tt class="docutils literal"><span class="pre">name</span></tt> and escape its content in case it contains some characters that looks like HTML.
+Please note the attribute <tt class="docutils literal"><span class="pre">t-esc</span></tt> can contain any type of JavaScript expression:</p>
+<div class="highlight-javascript"><pre>&lt;t t-name="HomePageTemplate"&gt;
+    &lt;div&gt;&lt;t t-esc="3+5"/&gt;&lt;/div&gt;
+&lt;/t&gt;</pre>
+</div>
+<p>Will render:</p>
+<div class="highlight-javascript"><pre>&lt;div&gt;8&lt;/div&gt;</pre>
+</div>
+</div>
+<div class="section" id="outputting-html">
+<h4>Outputting HTML<a class="headerlink" href="#outputting-html" title="Permalink to this headline">¶</a></h4>
+<p>If you know you have some HTML contained in a variable, use <tt class="docutils literal"><span class="pre">t-raw</span></tt> instead of <tt class="docutils literal"><span class="pre">t-esc</span></tt>:</p>
+<div class="highlight-javascript"><pre>&lt;t t-name="HomePageTemplate"&gt;
+    &lt;div&gt;&lt;t t-raw="some_html"/&gt;&lt;/div&gt;
+&lt;/t&gt;</pre>
+</div>
+</div>
+<div class="section" id="if">
+<h4>If<a class="headerlink" href="#if" title="Permalink to this headline">¶</a></h4>
+<p>The basic alternative block of QWeb is <tt class="docutils literal"><span class="pre">t-if</span></tt>:</p>
+<div class="highlight-javascript"><pre>&lt;t t-name="HomePageTemplate"&gt;
+    &lt;div&gt;
+        &lt;t t-if="true == true"&gt;
+            true is true
+        &lt;/t&gt;
+        &lt;t t-if="true == false"&gt;
+            true is not true
+        &lt;/t&gt;
+    &lt;/div&gt;
+&lt;/t&gt;</pre>
+</div>
+<p>Although QWeb does not contains any structure for else.</p>
+</div>
+<div class="section" id="foreach">
+<h4>Foreach<a class="headerlink" href="#foreach" title="Permalink to this headline">¶</a></h4>
+<p>To iterate on a list, use <tt class="docutils literal"><span class="pre">t-foreach</span></tt> and <tt class="docutils literal"><span class="pre">t-as</span></tt>:</p>
+<div class="highlight-javascript"><pre>&lt;t t-name="HomePageTemplate"&gt;
+    &lt;div&gt;
+        &lt;t t-foreach="names" t-as="name"&gt;
+            &lt;div&gt;
+                Hello &lt;t t-esc="name"/&gt;
+            &lt;/div&gt;
+        &lt;/t&gt;
+    &lt;/div&gt;
+&lt;/t&gt;</pre>
+</div>
+</div>
+<div class="section" id="setting-the-value-of-an-xml-attribute">
+<h4>Setting the Value of an XML Attribute<a class="headerlink" href="#setting-the-value-of-an-xml-attribute" title="Permalink to this headline">¶</a></h4>
+<p>QWeb has a special syntax to set the value of an attribute. You must use <tt class="docutils literal"><span class="pre">t-att-xxx</span></tt> and replace <tt class="docutils literal"><span class="pre">xxx</span></tt> with the
+name of the attribute:</p>
+<div class="highlight-javascript"><pre>&lt;t t-name="HomePageTemplate"&gt;
+    &lt;div&gt;
+        Input your name:
+        &lt;input type="text" t-att-value="defaultName"/&gt;
+    &lt;/div&gt;
+&lt;/t&gt;</pre>
+</div>
+</div>
+<div class="section" id="to-learn-more-about-qweb">
+<h4>To Learn More About QWeb<a class="headerlink" href="#to-learn-more-about-qweb" title="Permalink to this headline">¶</a></h4>
+<p>This guide does not pretend to be a reference for QWeb, please see the documentation for more information:
+<a class="reference external" href="https://doc.openerp.com/trunk/web/qweb/">https://doc.openerp.com/trunk/web/qweb/</a> .</p>
+</div>
+<div class="section" id="exercise">
+<h4>Exercise<a class="headerlink" href="#exercise" title="Permalink to this headline">¶</a></h4>
+<div class="topic">
+<p class="topic-title first">Exercise - Usage of QWeb in Widgets</p>
+<p>Create a widget whose constructor contains two parameters aside from <tt class="docutils literal"><span class="pre">parent</span></tt>: <tt class="docutils literal"><span class="pre">product_names</span></tt> and <tt class="docutils literal"><span class="pre">color</span></tt>.
+<tt class="docutils literal"><span class="pre">product_names</span></tt> is a list of strings, each one being a name of product. <tt class="docutils literal"><span class="pre">color</span></tt> is a string containing a color
+in CSS color format (ie: <tt class="docutils literal"><span class="pre">#000000</span></tt> for black). That widget should display the given product names one under the
+other, each one in a separate box with a background color with the value of <tt class="docutils literal"><span class="pre">color</span></tt> and a border. You must use
+QWeb to render the HTML. This exercise will necessitate some CSS that you should put in
+<tt class="docutils literal"><span class="pre">oepetstore/static/src/css/petstore.css</span></tt>. Display that widget in the <tt class="docutils literal"><span class="pre">HomePage</span></tt> widget with a list of five
+products and green as the background color for boxes.</p>
+</div>
+<p><strong>Solution:</strong></p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">openerp</span><span class="p">.</span><span class="nx">oepetstore</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">instance</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">_t</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">_t</span><span class="p">,</span>
+        <span class="nx">_lt</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">_lt</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">QWeb</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">qweb</span><span class="p">;</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span> <span class="o">=</span> <span class="p">{};</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">HomePage</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+        <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">products</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">ProductsWidget</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="s2">&quot;mouse&quot;</span><span class="p">,</span> <span class="s2">&quot;keyboard&quot;</span><span class="p">,</span> <span class="s2">&quot;graphic card&quot;</span><span class="p">,</span> <span class="s2">&quot;screen&quot;</span><span class="p">],</span> <span class="s2">&quot;#00FF00&quot;</span><span class="p">);</span>
+            <span class="nx">products</span><span class="p">.</span><span class="nx">appendTo</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">);</span>
+        <span class="p">},</span>
+    <span class="p">});</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">ProductsWidget</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+        <span class="nx">template</span><span class="o">:</span> <span class="s2">&quot;ProductsWidget&quot;</span><span class="p">,</span>
+        <span class="nx">init</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">parent</span><span class="p">,</span> <span class="nx">products</span><span class="p">,</span> <span class="nx">color</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">_super</span><span class="p">(</span><span class="nx">parent</span><span class="p">);</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">products</span> <span class="o">=</span> <span class="nx">products</span><span class="p">;</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">color</span> <span class="o">=</span> <span class="nx">color</span><span class="p">;</span>
+        <span class="p">},</span>
+    <span class="p">});</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">client_actions</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="s1">&#39;petstore.homepage&#39;</span><span class="p">,</span> <span class="s1">&#39;instance.oepetstore.HomePage&#39;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+
+<span class="nt">&lt;templates</span> <span class="na">xml:space=</span><span class="s">&quot;preserve&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;t</span> <span class="na">t-name=</span><span class="s">&quot;ProductsWidget&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div&gt;</span>
+            <span class="nt">&lt;t</span> <span class="na">t-foreach=</span><span class="s">&quot;widget.products&quot;</span> <span class="na">t-as=</span><span class="s">&quot;product&quot;</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;oe_products_item&quot;</span> <span class="na">t-att-style=</span><span class="s">&quot;&#39;background-color: &#39; + widget.color + &#39;;&#39;&quot;</span><span class="nt">&gt;&lt;t</span> <span class="na">t-esc=</span><span class="s">&quot;product&quot;</span><span class="nt">/&gt;&lt;/span&gt;&lt;br/&gt;</span>
+            <span class="nt">&lt;/t&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/t&gt;</span>
+<span class="nt">&lt;/templates&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-css"><div class="highlight"><pre><span class="nc">.oe_products_item</span> <span class="p">{</span>
+    <span class="k">display</span><span class="o">:</span> <span class="k">inline</span><span class="o">-</span><span class="k">block</span><span class="p">;</span>
+    <span class="k">padding</span><span class="o">:</span> <span class="m">3px</span><span class="p">;</span>
+    <span class="k">margin</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+    <span class="k">border</span><span class="o">:</span> <span class="m">1px</span> <span class="k">solid</span> <span class="nb">black</span><span class="p">;</span>
+    <span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">3px</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<img alt="_images/qweb.png" class="align-center" src="_images/qweb.png" style="width: 70%;" />
+</div>
+</div>
+</div>
+<div class="section" id="widget-events-and-properties">
+<h2>Widget Events and Properties<a class="headerlink" href="#widget-events-and-properties" title="Permalink to this headline">¶</a></h2>
+<p>Widgets still have more helper to learn. One of the more complex (and useful) one is the event system. Events are also
+closely related to the widget properties.</p>
+<div class="section" id="events">
+<h3>Events<a class="headerlink" href="#events" title="Permalink to this headline">¶</a></h3>
+<p>Widgets are able to fire events in a similar way most components in existing graphical user interfaces libraries (Qt,
+GTK, Swing,...) handle them. Example:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">ConfirmWidget</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="s2">&quot;&lt;div&gt;Are you sure you want to perform this action?&lt;/div&gt;&quot;</span> <span class="o">+</span>
+            <span class="s2">&quot;&lt;button class=&#39;ok_button&#39;&gt;Ok&lt;/button&gt;&quot;</span> <span class="o">+</span>
+            <span class="s2">&quot;&lt;button class=&#39;cancel_button&#39;&gt;Cancel&lt;/button&gt;&quot;</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;button.ok_button&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">self</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s2">&quot;user_choose&quot;</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+        <span class="p">});</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;button.cancel_button&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">self</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s2">&quot;user_choose&quot;</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+
+<span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">HomePage</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">widget</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">ConfirmWidget</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+        <span class="nx">widget</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;user_choose&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">user_choose</span><span class="p">);</span>
+        <span class="nx">widget</span><span class="p">.</span><span class="nx">appendTo</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">);</span>
+    <span class="p">},</span>
+    <span class="nx">user_choose</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">confirm</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">confirm</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;The user agreed to continue&quot;</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;The user refused to continue&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>First, we will explain what this example is supposed to do. We create a generic widget to ask the user if he really
+wants to do an action that could have important consequences (a type widget heavily used in Windows). To do so, we put
+two buttons in the widget. Then we bind jQuery events to know when the user click these buttons.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>It could be hard to understand this particular line:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</pre></div>
+</div>
+<p class="last">Remember, in JavaScript the variable <tt class="docutils literal"><span class="pre">this</span></tt> is a variable that is passed implicitly to all functions. It allows us
+to know which is the object if function is used like a method. Each declared function has its own <tt class="docutils literal"><span class="pre">this</span></tt>. So, when
+we declare a function inside a function, that new function will have its own <tt class="docutils literal"><span class="pre">this</span></tt> that could be different from
+the <tt class="docutils literal"><span class="pre">this</span></tt> of the parent function. If we want to remember the original object the simplest method is to store a
+reference in a variable. By convention in OpenERP we very often name that variable <tt class="docutils literal"><span class="pre">self</span></tt> because it&#8217;s the
+equivalent of <tt class="docutils literal"><span class="pre">this</span></tt> in Python.</p>
+</div>
+<p>Since our widget is supposed to be generic, it should not perform any precise action by itself. So, we simply make it
+trigger and event named <tt class="docutils literal"><span class="pre">user_choose</span></tt> by using the <tt class="docutils literal"><span class="pre">trigger()</span></tt> method.</p>
+<p><tt class="docutils literal"><span class="pre">Widget.trigger(event_name</span> <span class="pre">[,</span> <span class="pre">...])</span></tt> takes as first argument the name of the event to trigger. Then it can takes any
+number of additional arguments. These arguments will be passed to all the event listeners.</p>
+<p>Then we modify the <tt class="docutils literal"><span class="pre">HomePage</span></tt> widget to instantiate a <tt class="docutils literal"><span class="pre">ConfirmWidget</span></tt> and listen to its <tt class="docutils literal"><span class="pre">user_choose</span></tt> event by
+calling the <tt class="docutils literal"><span class="pre">on()</span></tt> method.</p>
+<p><tt class="docutils literal"><span class="pre">Widget.on(event_name,</span> <span class="pre">object,</span> <span class="pre">func)</span></tt> allows to bind a function to be called when the event identified by event_name
+is <tt class="docutils literal"><span class="pre">triggered</span></tt>. The <tt class="docutils literal"><span class="pre">func</span></tt> argument is the function to call and <tt class="docutils literal"><span class="pre">object</span></tt> is the object to which that function is
+related if it is a method. The binded function will be called with the additional arguments of <tt class="docutils literal"><span class="pre">trigger()</span></tt> if it has
+any. Example:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">widget</span> <span class="o">=</span> <span class="p">...</span>
+    <span class="nx">widget</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;my_event&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">my_event_triggered</span><span class="p">);</span>
+    <span class="nx">widget</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s2">&quot;my_event&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+<span class="p">},</span>
+<span class="nx">my_event_triggered</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">c</span><span class="p">);</span>
+    <span class="c1">// will print &quot;1 2 3&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="properties">
+<h3>Properties<a class="headerlink" href="#properties" title="Permalink to this headline">¶</a></h3>
+<p>Properties are very similar to normal object attributes. They allow to set data on an object but with an additional
+feature: it triggers events when a property&#8217;s value has changed.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">widget</span> <span class="o">=</span> <span class="p">...</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">widget</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;change:name&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">name_changed</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">widget</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Nicolas&quot;</span><span class="p">);</span>
+<span class="p">},</span>
+<span class="nx">name_changed</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;The new value of the property &#39;name&#39; is&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">widget</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Widget.set(name,</span> <span class="pre">value)</span></tt> allows to set the value of property. If the value changed (or it didn&#8217;t had a value
+previously) the object will trigger a <tt class="docutils literal"><span class="pre">change:xxx</span></tt> where <tt class="docutils literal"><span class="pre">xxx</span></tt> is the name of the property.</p>
+<p><tt class="docutils literal"><span class="pre">Widget.get(name)</span></tt> allows to retrieve the value of a property.</p>
+</div>
+<div class="section" id="id1">
+<h3>Exercise<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="topic">
+<p class="topic-title first">Exercise - Widget Properties and Events</p>
+<p>Create a widget <tt class="docutils literal"><span class="pre">ColorInputWidget</span></tt> that will display 3 <tt class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;text&quot;&gt;</span></tt>. Each of these <tt class="docutils literal"><span class="pre">&lt;input&gt;</span></tt> is
+dedicated to type a hexadecimal number from 00 to FF. When any of these <tt class="docutils literal"><span class="pre">&lt;input&gt;</span></tt> is modified by the user the
+widget must query the content of the three <tt class="docutils literal"><span class="pre">&lt;input&gt;</span></tt>, concatenate their values to have a complete CSS color code
+(ie: <tt class="docutils literal"><span class="pre">#00FF00</span></tt>) and put the result in a property named <tt class="docutils literal"><span class="pre">color</span></tt>. Please note the jQuery <tt class="docutils literal"><span class="pre">change()</span></tt> event that
+you can bind on any HTML <tt class="docutils literal"><span class="pre">&lt;input&gt;</span></tt> element and the <tt class="docutils literal"><span class="pre">val()</span></tt> method that can query the current value of that
+<tt class="docutils literal"><span class="pre">&lt;input&gt;</span></tt> could be useful to you for this exercise.</p>
+<p>Then, modify the <tt class="docutils literal"><span class="pre">HomePage</span></tt> widget to instantiate <tt class="docutils literal"><span class="pre">ColorInputWidget</span></tt> and display it. The <tt class="docutils literal"><span class="pre">HomePage</span></tt> widget
+should also display an empty rectangle. That rectangle must always, at any moment, have the same background color
+than the color in the <tt class="docutils literal"><span class="pre">color</span></tt> property of the <tt class="docutils literal"><span class="pre">ColorInputWidget</span></tt> instance.</p>
+<p>Use QWeb to generate all HTML.</p>
+</div>
+<p><strong>Solution:</strong></p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">openerp</span><span class="p">.</span><span class="nx">oepetstore</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">instance</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">_t</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">_t</span><span class="p">,</span>
+        <span class="nx">_lt</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">_lt</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">QWeb</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">qweb</span><span class="p">;</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span> <span class="o">=</span> <span class="p">{};</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">ColorInputWidget</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+        <span class="nx">template</span><span class="o">:</span> <span class="s2">&quot;ColorInputWidget&quot;</span><span class="p">,</span>
+        <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">).</span><span class="nx">change</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="nx">self</span><span class="p">.</span><span class="nx">input_changed</span><span class="p">();</span>
+            <span class="p">});</span>
+            <span class="nx">self</span><span class="p">.</span><span class="nx">input_changed</span><span class="p">();</span>
+        <span class="p">},</span>
+        <span class="nx">input_changed</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">confirm</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">color</span> <span class="o">=</span> <span class="s2">&quot;#&quot;</span><span class="p">;</span>
+            <span class="nx">color</span> <span class="o">+=</span> <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;.oe_color_red&quot;</span><span class="p">).</span><span class="nx">val</span><span class="p">();</span>
+            <span class="nx">color</span> <span class="o">+=</span> <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;.oe_color_green&quot;</span><span class="p">).</span><span class="nx">val</span><span class="p">();</span>
+            <span class="nx">color</span> <span class="o">+=</span> <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;.oe_color_blue&quot;</span><span class="p">).</span><span class="nx">val</span><span class="p">();</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="nx">color</span><span class="p">);</span>
+        <span class="p">},</span>
+    <span class="p">});</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">HomePage</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+        <span class="nx">template</span><span class="o">:</span> <span class="s2">&quot;HomePage&quot;</span><span class="p">,</span>
+        <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">colorInput</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">ColorInputWidget</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">colorInput</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;change:color&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">color_changed</span><span class="p">);</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">colorInput</span><span class="p">.</span><span class="nx">appendTo</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">);</span>
+        <span class="p">},</span>
+        <span class="nx">color_changed</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;.oe_color_div&quot;</span><span class="p">).</span><span class="nx">css</span><span class="p">(</span><span class="s2">&quot;background-color&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">colorInput</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">));</span>
+        <span class="p">},</span>
+    <span class="p">});</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">client_actions</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="s1">&#39;petstore.homepage&#39;</span><span class="p">,</span> <span class="s1">&#39;instance.oepetstore.HomePage&#39;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-javascript"><pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;templates xml:space="preserve"&gt;
+    &lt;t t-name="ColorInputWidget"&gt;
+        &lt;div&gt;
+            Red: &lt;input type="text" class="oe_color_red" value="00"&gt;&lt;/input&gt;&lt;br /&gt;
+            Green: &lt;input type="text" class="oe_color_green" value="00"&gt;&lt;/input&gt;&lt;br /&gt;
+            Blue: &lt;input type="text" class="oe_color_blue" value="00"&gt;&lt;/input&gt;&lt;br /&gt;
+        &lt;/div&gt;
+    &lt;/t&gt;
+    &lt;t t-name="HomePage"&gt;
+        &lt;div&gt;
+            &lt;div class="oe_color_div"&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/t&gt;
+&lt;/templates&gt;</pre>
+</div>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">.</span><span class="nx">oe_color_div</span> <span class="p">{</span>
+    <span class="nx">width</span><span class="o">:</span> <span class="mi">100</span><span class="nx">px</span><span class="p">;</span>
+    <span class="nx">height</span><span class="o">:</span> <span class="mi">100</span><span class="nx">px</span><span class="p">;</span>
+    <span class="nx">margin</span><span class="o">:</span> <span class="mi">10</span><span class="nx">px</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">jQuery&#8217;s <tt class="docutils literal"><span class="pre">css()</span></tt> method allows to set a css property.</p>
+</div>
+</div>
+</div>
+<div class="section" id="widget-helpers">
+<h2>Widget Helpers<a class="headerlink" href="#widget-helpers" title="Permalink to this headline">¶</a></h2>
+<p>We&#8217;ve seen the basics of the <tt class="docutils literal"><span class="pre">Widget</span></tt> class, QWeb and the events/properties system. There are still some more useful
+methods proposed by this class.</p>
+<div class="section" id="widget-s-jquery-selector">
+<h3><tt class="docutils literal"><span class="pre">Widget</span></tt>&#8216;s jQuery Selector<a class="headerlink" href="#widget-s-jquery-selector" title="Permalink to this headline">¶</a></h3>
+<p>It is very common to need to select a precise element inside a widget. In the previous part of this guide we&#8217;ve seen
+a lot of uses of the <tt class="docutils literal"><span class="pre">find()</span></tt> method of jQuery objects:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;input.my_input&quot;</span><span class="p">)...</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Widget</span></tt> provides a shorter syntax that does the same thing with the <tt class="docutils literal"><span class="pre">$()</span></tt> method:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MyWidget</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;input.my_input&quot;</span><span class="p">)...</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>We strongly advise you against using directly the global jQuery function <tt class="docutils literal"><span class="pre">$()</span></tt> like we did in the previous
+chapter were we explained the jQuery library and jQuery selectors. That type of global selection is sufficient for
+simple applications but is not a good idea in real, big web applications. The reason is simple: when you create a
+new type of widget you never know how many times it will be instantiated. Since the <tt class="docutils literal"><span class="pre">$()</span></tt> global function
+operates in <em>the whole HTML displayed in the browser</em>, if you instantiate a widget 2 times and use that function you
+will incorrectly select the content of another instance of your widget. That&#8217;s why you must restrict the jQuery
+selections to HTML which is located <em>inside</em> your widget most of the time.</p>
+<p class="last">Applying the same logic, you can also guess it is a very bad idea to try to use HTML ids in any widget. If the
+widget is instantiated 2 times you will have 2 different HTML element in the whole application that have the same
+id. And that is an error by itself. So you should stick to CSS classes to mark your HTML elements in all cases.</p>
+</div>
+</div>
+<div class="section" id="easier-dom-events-binding">
+<h3>Easier DOM Events Binding<a class="headerlink" href="#easier-dom-events-binding" title="Permalink to this headline">¶</a></h3>
+<p>In the previous part, we had to bind a lot of HTML element events like <tt class="docutils literal"><span class="pre">click()</span></tt> or <tt class="docutils literal"><span class="pre">change()</span></tt>. Now that we have
+the <tt class="docutils literal"><span class="pre">$()</span></tt> method to simplify code a little, let&#8217;s see how it would look like:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MyWidget</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.my_button&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">self</span><span class="p">.</span><span class="nx">button_clicked</span><span class="p">();</span>
+        <span class="p">});</span>
+    <span class="p">},</span>
+    <span class="nx">button_clicked</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="p">..</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>It&#8217;s still a bit long to type. That&#8217;s why there is an even more simple syntax for that:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MyWidget</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">events</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;click .my_button&quot;</span><span class="o">:</span> <span class="s2">&quot;button_clicked&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="nx">button_clicked</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="p">..</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">It&#8217;s important to differentiate the jQuery events that are triggered on DOM elements and events of the widgets. The
+<tt class="docutils literal"><span class="pre">event</span></tt> class attribute <em>is a helper to help binding jQuery events</em>, it has nothing to do with the widget events
+that can be binded using the <tt class="docutils literal"><span class="pre">on()</span></tt> method.</p>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">event</span></tt> class attribute is a dictionary that allows to define jQuery events with a shorter syntax.</p>
+<p>The key is a string with 2 different parts separated with a space. The first part is the name of the event, the second
+one is the jQuery selector. So the key <tt class="docutils literal"><span class="pre">click</span> <span class="pre">.my_button</span></tt> will bind the event <tt class="docutils literal"><span class="pre">click</span></tt> on the elements matching the
+selector <tt class="docutils literal"><span class="pre">my_button</span></tt>.</p>
+<p>The value is a string with the name of the method to call on the current object.</p>
+</div>
+<div class="section" id="development-guidelines">
+<h3>Development Guidelines<a class="headerlink" href="#development-guidelines" title="Permalink to this headline">¶</a></h3>
+<p>As explained in the prerequisites to read this guide, you should already know HTML and CSS. But developing web
+applications in JavaScript or developing web modules for OpenERP require to be more strict than you will usually be
+when simply creating static web pages with CSS to style them. So these guidelines should be followed if you want to
+have manageable projects and avoid bugs or common mistakes:</p>
+<ul>
+<li><p class="first">Identifiers (<tt class="docutils literal"><span class="pre">id</span></tt> attribute) should be avoided. In generic applications and modules, <tt class="docutils literal"><span class="pre">id</span></tt> limits the re-usability
+of components and tends to make code more brittle. Just about all the time, they can be replaced with nothing, with
+classes or with keeping a reference to a DOM node or a jQuery element around.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If it is absolutely necessary to have an <tt class="docutils literal"><span class="pre">id</span></tt> (because a third-party library requires one and can&#8217;t take a DOM
+element), it should be generated with <tt class="docutils literal"><span class="pre">_.uniqueId()</span></tt>.</p>
+</div>
+</li>
+<li><p class="first">Avoid predictable/common CSS class names. Class names such as &#8220;content&#8221; or &#8220;navigation&#8221; might match the desired
+meaning/semantics, but it is likely an other developer will have the same need, creating a naming conflict and
+unintended behavior. Generic class names should be prefixed with e.g. the name of the component they belong to
+(creating &#8220;informal&#8221; namespaces, much as in C or Objective-C).</p>
+</li>
+<li><p class="first">Global selectors should be avoided. Because a component may be used several times in a single page (an example in
+OpenERP is dashboards), queries should be restricted to a given component&#8217;s scope. Unfiltered selections such as
+<tt class="docutils literal"><span class="pre">$(selector)</span></tt> or <tt class="docutils literal"><span class="pre">document.querySelectorAll(selector)</span></tt> will generally lead to unintended or incorrect behavior.
+OpenERP Web&#8217;s <tt class="docutils literal"><span class="pre">Widget</span></tt> has an attribute providing its DOM root (<tt class="docutils literal"><span class="pre">Widget.$el</span></tt>), and a shortcut to select nodes
+directly (<tt class="docutils literal"><span class="pre">Widget.$()</span></tt>).</p>
+</li>
+<li><p class="first">More generally, never assume your components own or controls anything beyond its own personal <tt class="docutils literal"><span class="pre">$el</span></tt>.</p>
+</li>
+<li><p class="first">HTML templating/rendering should use QWeb unless absolutely trivial.</p>
+</li>
+<li><p class="first">All interactive components (components displaying information to the screen or intercepting DOM events) must inherit
+from Widget and correctly implement and use its API and life cycle.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="communication-with-the-openerp-server">
+<h2>Communication with the OpenERP Server<a class="headerlink" href="#communication-with-the-openerp-server" title="Permalink to this headline">¶</a></h2>
+<p>Now you should know everything you need to display any type of graphical user interface with your OpenERP modules.
+Still, OpenERP is a database-centric application so it&#8217;s still not very useful if you can&#8217;t query data from the
+database.</p>
+<p>As a reminder, in OpenERP you are not supposed to directly query data from the PostgreSQL database, you will always
+use the build-in ORM (Object-Relational Mapping) and more precisely the OpenERP <em>models</em>.</p>
+<div class="section" id="contacting-models">
+<h3>Contacting Models<a class="headerlink" href="#contacting-models" title="Permalink to this headline">¶</a></h3>
+<p>In the previous chapter we explained how to send HTTP requests to the web server using the <tt class="docutils literal"><span class="pre">$.ajax()</span></tt> method and the
+JSON format. It is useful to know how to make a JavaScript application communicate with its web server using these
+tools, but it&#8217;s still a little bit low-level to be used in a complex application like OpenERP.</p>
+<p>When the web client contacts the OpenERP server it has to pass additional data like the necessary information to
+authenticate the current user. There is also some more complexity due to OpenERP models that need a higher-level
+communication protocol to be used.</p>
+<p>This is why you will not use directly <tt class="docutils literal"><span class="pre">$.ajax()</span></tt> to communicate with the server. The web client framework provides
+classes to abstract that protocol.</p>
+<p>To demonstrate this, the file <tt class="docutils literal"><span class="pre">petstore.py</span></tt> already contains a small model with a sample method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">message_of_the_day</span><span class="p">(</span><span class="n">osv</span><span class="o">.</span><span class="n">osv</span><span class="p">):</span>
+    <span class="n">_name</span> <span class="o">=</span> <span class="s">&quot;message_of_the_day&quot;</span>
+
+    <span class="k">def</span> <span class="nf">my_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&quot;hello&quot;</span><span class="p">:</span> <span class="s">&quot;world&quot;</span><span class="p">}</span>
+
+    <span class="n">_columns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;message&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="s">&quot;Message&quot;</span><span class="p">),</span>
+        <span class="s">&#39;color&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">char</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="s">&quot;Color&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>If you know OpenERP models that code should be familiar to you. This model declares a table named <tt class="docutils literal"><span class="pre">message_of_the_day</span></tt>
+with two fields. It also has a method <tt class="docutils literal"><span class="pre">my_method()</span></tt> that doesn&#8217;t do much except return a dictionary.</p>
+<p>Here is a sample widget that calls <tt class="docutils literal"><span class="pre">my_method()</span></tt> and displays the result:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">HomePage</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">model</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Model</span><span class="p">(</span><span class="s2">&quot;message_of_the_day&quot;</span><span class="p">);</span>
+        <span class="nx">model</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">&quot;my_method&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span><span class="nx">context</span><span class="o">:</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">CompoundContext</span><span class="p">()}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">self</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="s2">&quot;&lt;div&gt;Hello &quot;</span> <span class="o">+</span> <span class="nx">result</span><span class="p">[</span><span class="s2">&quot;hello&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;&lt;/div&gt;&quot;</span><span class="p">);</span>
+            <span class="c1">// will show &quot;Hello world&quot; to the user</span>
+        <span class="p">});</span>
+    <span class="p">},</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>The class used to contact OpenERP models is <tt class="docutils literal"><span class="pre">instance.web.Model</span></tt>. When you instantiate it, you must give as first
+argument to its constructor the name of the model you want to contact in OpenERP. (Here it is <tt class="docutils literal"><span class="pre">message_of_the_day</span></tt>,
+the model created for this example, but it could be any other model like <tt class="docutils literal"><span class="pre">res.partner</span></tt>.)</p>
+<p><tt class="docutils literal"><span class="pre">call(name,</span> <span class="pre">args,</span> <span class="pre">kwargs)</span></tt> is the method of <tt class="docutils literal"><span class="pre">Model</span></tt> used to call any method of an OpenERP server-side model. Here
+are its arguments:</p>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">name</span></tt> is the name of the method to call on the model. Here it is the method named <tt class="docutils literal"><span class="pre">my_method</span></tt>.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">args</span></tt> is a list of positional arguments to give to the method. The sample <tt class="docutils literal"><span class="pre">my_method()</span></tt> method does not contain
+any particular argument we want to give to it, so here is another example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">my_method2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span> <span class="o">...</span>
+</pre></div>
+</div>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">model</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">&quot;my_method&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">...</span>
+<span class="c1">// with this a=1, b=2 and c=3</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">kwargs</span></tt> is a list of named arguments to give to the method. In the example, we have one named argument which is
+a bit special: <tt class="docutils literal"><span class="pre">context</span></tt>. It&#8217;s given a value that may seem very strange right now:
+<tt class="docutils literal"><span class="pre">new</span> <span class="pre">instance.web.CompoundContext()</span></tt>. The meaning of that argument will be explained later. Right now you should
+just know the <tt class="docutils literal"><span class="pre">kwargs</span></tt> argument allows to give arguments to the Python method by name instead of position. Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">my_method2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span> <span class="o">...</span>
+</pre></div>
+</div>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">model</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">&quot;my_method&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span><span class="nx">a</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">b</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span> <span class="nx">c</span><span class="o">:</span> <span class="mi">3</span><span class="p">,</span> <span class="p">...</span>
+<span class="c1">// with this a=1, b=2 and c=3</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>If you take a look at the <tt class="docutils literal"><span class="pre">my_method()</span></tt>&#8216;s declaration in Python, you can see it has two arguments named <tt class="docutils literal"><span class="pre">cr</span></tt> and
+<tt class="docutils literal"><span class="pre">uid</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">my_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+</pre></div>
+</div>
+<p class="last">You could have noticed we do not give theses arguments to the server when we call that method from JavaScript. That
+is because theses arguments that have to be declared in all models&#8217; methods are never sent from the OpenERP client.
+These arguments are added implicitly by the OpenERP server. The first one is an object called the <em>cursor</em> that
+allows communication with the database. The second one is the id of the currently logged in user.</p>
+</div>
+<p><tt class="docutils literal"><span class="pre">call()</span></tt> returns a deferred resolved with the value returned by the model&#8217;s method as first argument. If you don&#8217;t
+know what deferreds are, take a look at the previous chapter (the part about HTTP requests in jQuery).</p>
+</div>
+<div class="section" id="compoundcontext">
+<h3>CompoundContext<a class="headerlink" href="#compoundcontext" title="Permalink to this headline">¶</a></h3>
+<p>In the previous part, we avoided to explain the strange <tt class="docutils literal"><span class="pre">context</span></tt> argument in the call to our model&#8217;s method:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">model</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">&quot;my_method&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span><span class="nx">context</span><span class="o">:</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">CompoundContext</span><span class="p">()})</span>
+</pre></div>
+</div>
+<p>In OpenERP, models&#8217; methods should always have an argument named <tt class="docutils literal"><span class="pre">context</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">my_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>The context is like a &#8220;magic&#8221; argument that the web client will always give to the server when calling a method. The
+context is a dictionary containing multiple keys. One of the most important key is the language of the user, used by the
+server to translate all the messages of the application. Another one is the time zone of the user, used to compute
+correctly dates and times if OpenERP is used by people in different countries.</p>
+<p>The <tt class="docutils literal"><span class="pre">argument</span></tt> is necessary in all methods, because if we forget it bad things could happen (like the application not
+being translated correctly). That&#8217;s why, when you call a model&#8217;s method, you should always give it to that argument. The
+solution to achieve that is to use the <tt class="docutils literal"><span class="pre">instance.web.CompoundContext</span></tt> class.</p>
+<p><tt class="docutils literal"><span class="pre">CompoundContext</span></tt> is a class used to pass the user&#8217;s context (with language, time zone, etc...) to the server as well
+as adding new keys to the context (some models&#8217; methods use arbitrary keys added to the context). It is created by
+giving to its constructor any number of dictionaries or other <tt class="docutils literal"><span class="pre">CompoundContext</span></tt> instances. It will merge all those
+contexts before sending them to the server.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">model</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">&quot;my_method&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span><span class="nx">context</span><span class="o">:</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">CompoundContext</span><span class="p">({</span><span class="s1">&#39;new_key&#39;</span><span class="o">:</span> <span class="s1">&#39;key_value&#39;</span><span class="p">})})</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">display_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">print</span> <span class="n">context</span>
+    <span class="o">//</span> <span class="n">will</span> <span class="k">print</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;lang&#39;</span><span class="p">:</span> <span class="s">&#39;en_US&#39;</span><span class="p">,</span> <span class="s">&#39;new_key&#39;</span><span class="p">:</span> <span class="s">&#39;key_value&#39;</span><span class="p">,</span> <span class="s">&#39;tz&#39;</span><span class="p">:</span> <span class="s">&#39;Europe/Brussels&#39;</span><span class="p">,</span> <span class="s">&#39;uid&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>You can see the dictionary in the argument <tt class="docutils literal"><span class="pre">context</span></tt> contains some keys that are related to the configuration of the
+current user in OpenERP plus the <tt class="docutils literal"><span class="pre">new_key</span></tt> key that was added when instantiating <tt class="docutils literal"><span class="pre">CompoundContext</span></tt>.</p>
+<p>To resume, you should always add an instance of <tt class="docutils literal"><span class="pre">instance.web.CompoundContext</span></tt> in all calls to a model&#8217;s method.</p>
+</div>
+<div class="section" id="queries">
+<h3>Queries<a class="headerlink" href="#queries" title="Permalink to this headline">¶</a></h3>
+<p>If you know OpenERP module development, you should already know everything necessary to communicate with models and
+make them do what you want. But there is still a small helper that could be useful to you : <tt class="docutils literal"><span class="pre">query()</span></tt>.</p>
+<p><tt class="docutils literal"><span class="pre">query()</span></tt> is a shortcut for the usual combination of <tt class="docutils literal"><span class="pre">search</span></tt> and <tt class="docutils literal"><span class="pre">read</span></tt> methods in OpenERP models. It allows
+to search records and get their data with a shorter syntax. Example:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">model</span><span class="p">.</span><span class="nx">query</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;login&#39;</span><span class="p">,</span> <span class="s1">&#39;user_email&#39;</span><span class="p">,</span> <span class="s1">&#39;signature&#39;</span><span class="p">])</span>
+     <span class="p">.</span><span class="nx">filter</span><span class="p">([[</span><span class="s1">&#39;active&#39;</span><span class="p">,</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="kc">true</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;company_id&#39;</span><span class="p">,</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="nx">main_company</span><span class="p">]])</span>
+     <span class="p">.</span><span class="nx">limit</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+     <span class="p">.</span><span class="nx">all</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">users</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// do work with users records</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">query()</span></tt> takes as argument a list of fields to query in the model. It returns an instance of the
+<tt class="docutils literal"><span class="pre">instance.web.Query</span></tt> class.</p>
+<p><tt class="docutils literal"><span class="pre">Query</span></tt> is a class representing the query you are trying to construct before sending it to the server. It has
+multiple methods you can call to customize the query. All these methods will return the current instance of <tt class="docutils literal"><span class="pre">Query</span></tt>:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">filter</span></tt> allows to specify an OpenERP <em>domain</em>. As a reminder, a domain in OpenERP is a list of conditions, each
+condition is a list it self.</li>
+<li><tt class="docutils literal"><span class="pre">limit</span></tt> sets a limit to the number of records returned.</li>
+</ul>
+<p>When you have customized you query, you can call the <tt class="docutils literal"><span class="pre">all()</span></tt> method. It will performs the real query to the server and
+return a deferred resolved with the result. The result is the same thing return by the model&#8217;s method <tt class="docutils literal"><span class="pre">read()</span></tt> (a list
+of dictionaries containing the asked fields).</p>
+<p>To have more information about the <tt class="docutils literal"><span class="pre">query()</span></tt> helper, see the reference documentation:
+<a class="reference external" href="https://doc.openerp.com/trunk/web/rpc/">https://doc.openerp.com/trunk/web/rpc/</a> .</p>
+</div>
+</div>
+<div class="section" id="exercises">
+<h2>Exercises<a class="headerlink" href="#exercises" title="Permalink to this headline">¶</a></h2>
+<div class="topic">
+<p class="topic-title first">Exercise - Message of the Day</p>
+<p>Create a widget <tt class="docutils literal"><span class="pre">MessageOfTheDay</span></tt> that will display the message contained in the last record of the
+<tt class="docutils literal"><span class="pre">message_of_the_day</span></tt>. The widget should query the message as soon as it is inserted the the DOM and display the
+message to the user. Display that widget on the home page of the OpenERP Pet Store module.</p>
+</div>
+<p><strong>Solution:</strong></p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">openerp</span><span class="p">.</span><span class="nx">oepetstore</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">instance</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">_t</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">_t</span><span class="p">,</span>
+        <span class="nx">_lt</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">_lt</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">QWeb</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">qweb</span><span class="p">;</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span> <span class="o">=</span> <span class="p">{};</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">HomePage</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+        <span class="nx">template</span><span class="o">:</span> <span class="s2">&quot;HomePage&quot;</span><span class="p">,</span>
+        <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">motd</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MessageOfTheDay</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+            <span class="nx">motd</span><span class="p">.</span><span class="nx">appendTo</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">);</span>
+        <span class="p">},</span>
+    <span class="p">});</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">client_actions</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="s1">&#39;petstore.homepage&#39;</span><span class="p">,</span> <span class="s1">&#39;instance.oepetstore.HomePage&#39;</span><span class="p">);</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MessageOfTheDay</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+        <span class="nx">template</span><span class="o">:</span> <span class="s2">&quot;MessageofTheDay&quot;</span><span class="p">,</span>
+        <span class="nx">init</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">_super</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+        <span class="p">},</span>
+        <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+            <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Model</span><span class="p">(</span><span class="s2">&quot;message_of_the_day&quot;</span><span class="p">).</span><span class="nx">query</span><span class="p">([</span><span class="s2">&quot;message&quot;</span><span class="p">]).</span><span class="nx">first</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">self</span><span class="p">.</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.oe_mywidget_message_of_the_day&quot;</span><span class="p">).</span><span class="nx">text</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">message</span><span class="p">);</span>
+            <span class="p">});</span>
+        <span class="p">},</span>
+    <span class="p">});</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+
+<span class="nt">&lt;templates</span> <span class="na">xml:space=</span><span class="s">&quot;preserve&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;t</span> <span class="na">t-name=</span><span class="s">&quot;HomePage&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;oe_petstore_homepage&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/t&gt;</span>
+    <span class="nt">&lt;t</span> <span class="na">t-name=</span><span class="s">&quot;MessageofTheDay&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;oe_petstore_motd&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;oe_mywidget_message_of_the_day&quot;</span><span class="nt">&gt;&lt;/p&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/t&gt;</span>
+<span class="nt">&lt;/templates&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-css"><div class="highlight"><pre><span class="nc">.oe_petstore_motd</span> <span class="p">{</span>
+    <span class="k">margin</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+    <span class="k">padding</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+    <span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">3px</span><span class="p">;</span>
+    <span class="k">background-color</span><span class="o">:</span> <span class="m">#F0EEEE</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="topic">
+<p class="topic-title first">Exercise - Pet Toys List</p>
+<p>Create a widget <tt class="docutils literal"><span class="pre">PetToysList</span></tt> that will display 5 toys on the home page with their names and their images.</p>
+<p>In this OpenERP addon, the pet toys are not stored in a new table like for the message of the day. They are in the
+table <tt class="docutils literal"><span class="pre">product.product</span></tt>. If you click on the menu item <tt class="docutils literal"><span class="pre">Pet</span> <span class="pre">Store</span> <span class="pre">&gt;</span> <span class="pre">Pet</span> <span class="pre">Store</span> <span class="pre">&gt;</span> <span class="pre">Pet</span> <span class="pre">Toys</span></tt> you will be able to
+see them. Pet toys are identified by the category named <tt class="docutils literal"><span class="pre">Pet</span> <span class="pre">Toys</span></tt>. You could need to document yourself on the
+model <tt class="docutils literal"><span class="pre">product.product</span></tt> to be able to create a domain to select pet toys and not all the products.</p>
+<p>To display the images of the pet toys, you should know that images in OpenERP can be queried from the database like
+any other fields, but you will obtain a string containing Base64-encoded binary. There is a little trick to display
+images in Base64 format in HTML:</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;img</span> <span class="na">class=</span><span class="s">&quot;oe_kanban_image&quot;</span> <span class="na">src=</span><span class="s">&quot;data:image/png;base64,${replace this by base64}&quot;</span><span class="nt">&gt;&lt;/image&gt;</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">PetToysList</span></tt> widget should be displayed on the home page on the right of the <tt class="docutils literal"><span class="pre">MessageOfTheDay</span></tt> widget. You
+will need to make some layout with CSS to achieve this.</p>
+</div>
+<p><strong>Solution:</strong></p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">openerp</span><span class="p">.</span><span class="nx">oepetstore</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">instance</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">_t</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">_t</span><span class="p">,</span>
+        <span class="nx">_lt</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">_lt</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">QWeb</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">qweb</span><span class="p">;</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span> <span class="o">=</span> <span class="p">{};</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">HomePage</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+        <span class="nx">template</span><span class="o">:</span> <span class="s2">&quot;HomePage&quot;</span><span class="p">,</span>
+        <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">pettoys</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">PetToysList</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+            <span class="nx">pettoys</span><span class="p">.</span><span class="nx">appendTo</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.oe_petstore_homepage_left&quot;</span><span class="p">));</span>
+            <span class="kd">var</span> <span class="nx">motd</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MessageOfTheDay</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+            <span class="nx">motd</span><span class="p">.</span><span class="nx">appendTo</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.oe_petstore_homepage_right&quot;</span><span class="p">));</span>
+        <span class="p">},</span>
+    <span class="p">});</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">client_actions</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="s1">&#39;petstore.homepage&#39;</span><span class="p">,</span> <span class="s1">&#39;instance.oepetstore.HomePage&#39;</span><span class="p">);</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">MessageOfTheDay</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+        <span class="nx">template</span><span class="o">:</span> <span class="s2">&quot;MessageofTheDay&quot;</span><span class="p">,</span>
+        <span class="nx">init</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">_super</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+        <span class="p">},</span>
+        <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+            <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Model</span><span class="p">(</span><span class="s2">&quot;message_of_the_day&quot;</span><span class="p">).</span><span class="nx">query</span><span class="p">([</span><span class="s2">&quot;message&quot;</span><span class="p">]).</span><span class="nx">first</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">self</span><span class="p">.</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.oe_mywidget_message_of_the_day&quot;</span><span class="p">).</span><span class="nx">text</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">message</span><span class="p">);</span>
+            <span class="p">});</span>
+        <span class="p">},</span>
+    <span class="p">});</span>
+
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">oepetstore</span><span class="p">.</span><span class="nx">PetToysList</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Widget</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+        <span class="nx">template</span><span class="o">:</span> <span class="s2">&quot;PetToysList&quot;</span><span class="p">,</span>
+        <span class="nx">start</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+            <span class="k">new</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">web</span><span class="p">.</span><span class="nx">Model</span><span class="p">(</span><span class="s2">&quot;product.product&quot;</span><span class="p">).</span><span class="nx">query</span><span class="p">([</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">])</span>
+                <span class="p">.</span><span class="nx">filter</span><span class="p">([[</span><span class="s2">&quot;categ_id.name&quot;</span><span class="p">,</span> <span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="s2">&quot;Pet Toys&quot;</span><span class="p">]]).</span><span class="nx">limit</span><span class="p">(</span><span class="mi">5</span><span class="p">).</span><span class="nx">all</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="kd">var</span> <span class="nx">$item</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="nx">QWeb</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="s2">&quot;PetToy&quot;</span><span class="p">,</span> <span class="p">{</span><span class="nx">item</span><span class="o">:</span> <span class="nx">item</span><span class="p">}));</span>
+                    <span class="nx">self</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">$item</span><span class="p">);</span>
+                <span class="p">});</span>
+            <span class="p">});</span>
+        <span class="p">},</span>
+    <span class="p">});</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+
+<span class="nt">&lt;templates</span> <span class="na">xml:space=</span><span class="s">&quot;preserve&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;t</span> <span class="na">t-name=</span><span class="s">&quot;HomePage&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;oe_petstore_homepage&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;oe_petstore_homepage_left&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
+            <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;oe_petstore_homepage_right&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/t&gt;</span>
+    <span class="nt">&lt;t</span> <span class="na">t-name=</span><span class="s">&quot;MessageofTheDay&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;oe_petstore_motd&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;oe_mywidget_message_of_the_day&quot;</span><span class="nt">&gt;&lt;/p&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/t&gt;</span>
+    <span class="nt">&lt;t</span> <span class="na">t-name=</span><span class="s">&quot;PetToysList&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;oe_petstore_pettoyslist&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/t&gt;</span>
+    <span class="nt">&lt;t</span> <span class="na">t-name=</span><span class="s">&quot;PetToy&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;oe_petstore_pettoy&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;p&gt;&lt;t</span> <span class="na">t-esc=</span><span class="s">&quot;item.name&quot;</span><span class="nt">/&gt;&lt;/p&gt;</span>
+            <span class="nt">&lt;p&gt;&lt;img</span> <span class="na">t-att-src=</span><span class="s">&quot;&#39;data:image/jpg;base64,&#39;+item.image&quot;</span><span class="nt">/&gt;&lt;/p&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/t&gt;</span>
+<span class="nt">&lt;/templates&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-css"><div class="highlight"><pre><span class="nc">.oe_petstore_homepage</span> <span class="p">{</span>
+    <span class="k">display</span><span class="o">:</span> <span class="n">table</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.oe_petstore_homepage_left</span> <span class="p">{</span>
+    <span class="k">display</span><span class="o">:</span> <span class="k">table-cell</span><span class="p">;</span>
+    <span class="k">width</span> <span class="o">:</span> <span class="m">300px</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.oe_petstore_homepage_right</span> <span class="p">{</span>
+    <span class="k">display</span><span class="o">:</span> <span class="k">table-cell</span><span class="p">;</span>
+    <span class="k">width</span> <span class="o">:</span> <span class="m">300px</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.oe_petstore_motd</span> <span class="p">{</span>
+    <span class="k">margin</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+    <span class="k">padding</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+    <span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">3px</span><span class="p">;</span>
+    <span class="k">background-color</span><span class="o">:</span> <span class="m">#F0EEEE</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.oe_petstore_pettoyslist</span> <span class="p">{</span>
+    <span class="k">padding</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.oe_petstore_pettoy</span> <span class="p">{</span>
+    <span class="k">margin</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+    <span class="k">padding</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+    <span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">3px</span><span class="p">;</span>
+    <span class="k">background-color</span><span class="o">:</span> <span class="m">#F0EEEE</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">OpenERP Web Framework</a><ul>
+<li><a class="reference internal" href="#a-simple-module-to-test-the-web-framework">A Simple Module to Test the Web Framework</a></li>
+<li><a class="reference internal" href="#openerp-javascript-module">OpenERP JavaScript Module</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#widgets-basics">Widgets Basics</a><ul>
+<li><a class="reference internal" href="#the-client-action">The Client Action</a></li>
+<li><a class="reference internal" href="#display-content">Display Content</a></li>
+<li><a class="reference internal" href="#widget-parents-and-children">Widget Parents and Children</a></li>
+<li><a class="reference internal" href="#destroying-widgets">Destroying Widgets</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-qweb-template-engine">The QWeb Template Engine</a><ul>
+<li><a class="reference internal" href="#using-qweb-inside-a-widget">Using QWeb inside a Widget</a><ul>
+<li><a class="reference internal" href="#qweb-context">QWeb Context</a></li>
+<li><a class="reference internal" href="#template-declaration">Template Declaration</a></li>
+<li><a class="reference internal" href="#escaping">Escaping</a></li>
+<li><a class="reference internal" href="#outputting-html">Outputting HTML</a></li>
+<li><a class="reference internal" href="#if">If</a></li>
+<li><a class="reference internal" href="#foreach">Foreach</a></li>
+<li><a class="reference internal" href="#setting-the-value-of-an-xml-attribute">Setting the Value of an XML Attribute</a></li>
+<li><a class="reference internal" href="#to-learn-more-about-qweb">To Learn More About QWeb</a></li>
+<li><a class="reference internal" href="#exercise">Exercise</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#widget-events-and-properties">Widget Events and Properties</a><ul>
+<li><a class="reference internal" href="#events">Events</a></li>
+<li><a class="reference internal" href="#properties">Properties</a></li>
+<li><a class="reference internal" href="#id1">Exercise</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#widget-helpers">Widget Helpers</a><ul>
+<li><a class="reference internal" href="#widget-s-jquery-selector"><tt class="docutils literal"><span class="pre">Widget</span></tt>&#8216;s jQuery Selector</a></li>
+<li><a class="reference internal" href="#easier-dom-events-binding">Easier DOM Events Binding</a></li>
+<li><a class="reference internal" href="#development-guidelines">Development Guidelines</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#communication-with-the-openerp-server">Communication with the OpenERP Server</a><ul>
+<li><a class="reference internal" href="#contacting-models">Contacting Models</a></li>
+<li><a class="reference internal" href="#compoundcontext">CompoundContext</a></li>
+<li><a class="reference internal" href="#queries">Queries</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#exercises">Exercises</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="firstapp.html"
+                        title="previous chapter">JavaScript Libraries</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/web_framework.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="firstapp.html" title="JavaScript Libraries"
+             >previous</a> |</li>
+        <li><a href="index.html">OpenERP Web Training 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, OpenERP SA.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

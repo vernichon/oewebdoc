@@ -1,0 +1,458 @@
+
+JavaScript Basics
+=================
+
+Preamble
+--------
+
+What is a Web Application ?
+"""""""""""""""""""""""""""
+
+A web application is simply an application that is delivered and used through a web browser, but the term has recently taken
+a more specific meaning.
+
+The old way to make a web application, and the way OpenERP worked until version 6.0 is to make the server send to the
+user complete HTML documents representing the state of the application's GUI. This means the server has to compute and
+send a new HTML document for each interaction; buttons clicks, searches, history navigation all require the server to
+resend a document.
+
+This puts a large load on the server and thus severely impact the number of concurrent users that can be served. It also
+creates a large latency in the application that makes the implementation of many features impossible, and limits what
+can be achieved in terms of usability.
+
+The solution is to create a complete and standalone application in JavaScript that runs on the user's web browser. That
+type of application comes to have much more in common with traditional desktop applications (example: GTK, Swing, Qt,
+Windows Forms,...) than PHP-like web sites. The only difference with desktop applications, besides the programming
+language and libraries used, is that the web client is downloaded and run by the user's browser each time he visits the
+OpenERP website.
+
+A Note about JavaScript
+"""""""""""""""""""""""
+
+JavaScript is the language understood by web browsers and thus a de-facto language for web applications. If you want to
+develop for OpenERP's Web client you'll need to know JavaScript.
+
+Objectively, JavaScript is a not a good programming language. It was designed by Netscape in 1995 for commercial purpose
+by a small team with a short development time. It was not meant to be the most universal programming language in the
+History. It has a lot a initial design problems and, due to backward-compatibility necessity, it was not really improved
+since its creation.
+
+Additionally JavaScript suffers from its wide popularity. This results in a lot of Google search results about
+JavaScript being articles written by people that do not have a formal training in computer programming or that can't
+even program at all but still manage to get some effects by copy-pasting code.
+
+Still, despite its problems, the core of the language contains good ideas allowing a lot of creativity for programmers.
+(Like prototype-based programming and functional programming.) Most of JavaScript's shortcomings can be erased by using
+the correct patterns and the correct tools. It also has strong advantages on its own. First of all, JavaScript is very
+fast. Fast to start, fast to run and fast to deploy. The ability to use HTML and the multimedia API of the browsers also
+allows to create very nice looking applications and good productivity compared to desktop application programming. The
+decisive point is probably the fact that JavaScript virtual machines are available on 99.99% of the desktop computers on
+the planet.
+
+In the end, if you're a good programmers with the good libraries, the advantages far outweighs the inconveniences and
+makes JavaScript and the browser one of the best environment to develop applications for the general public.
+
+Command Line Interpreter
+------------------------
+
+To test the basic features of the language, we recommend you to begin by using a command line interpreter. Most
+modern web browsers will provide a console to use JavaScript, but it is recommended to use `Google Chrome
+<http://www.google.com/chrome/>`_ for OpenERP's web module development. All this guide will assume you this particular
+browser.
+
+Once Chrome is installed, open any web page then go in the configuration menu of Chrome and select *Tools > Developer
+Tools* or use *Ctrl + Shift + I*. This should reveal a new section at the bottom of the window. Now select the
+*Console* panel. You should have a screen looking like this:
+
+.. image:: img/chrome.png
+   :align: center
+   :width: 70%
+
+You will now be able to test the code snippets given in the next part.
+
+Basic Data Types
+----------------
+
+Numbers
+"""""""
+
+::
+
+    > ((3 + 3) / 1.5) * 2;
+    8
+
+Please note **JavaScript do not have integers**. All numbers are floats. This is a major difference with most other
+programming languages. This has impacts on some mathematical operations. Example:
+
+::
+
+    > 3 / 2;
+    1.5
+
+In C, Java or Python the result would be 1, except if one of the members was casted to float or explicitly declared as
+float using a different notation (``2.0`` or ``2.``).
+
+Booleans
+""""""""
+
+::
+
+    > 5 == 2;
+    false
+    > true == true;
+    true
+    > true == false;
+    false
+
+As simple as booleans can be.
+
+Strings
+"""""""
+
+::
+
+    > "Hello World";
+    "Hello World"
+    > 'Hello World';
+    "Hello World"
+
+Strings can be declared using single quotes or double quotes. Like most high level programming languages, strings have
+methods for many operations.
+
+::
+
+    > "Hello World".charAt(3);
+    "l" // like Python, there is not char type in JavaScript, a char is a string of size 1
+    > "Hello World".slice(6, 9);
+    "Wor" // slice() is used to obtain a sub-string
+    > "Hello World".length;
+    11
+
+Strings also use the + operator for concatenation:
+
+::
+
+    > "Hello " + "World";
+    "Hello World"
+
+Null
+""""
+
+::
+
+    > var x = null;
+    > x;
+    null
+
+Similar to a lot of languages or ``None`` in Python.
+
+Undefined
+"""""""""
+
+If you declare a variable but do not assign it it will have a special value. This value is not the same as ``null``.
+
+::
+
+    > var x;
+    > x;
+    undefined
+
+Implicit Type Conversions
+-------------------------
+
+JavaScript provides automatic type conversion for most operators.
+
+::
+    
+    > "Test" + 5;
+    "Test5"
+
+Practically that behavior can be useful in some cases, like implicit conversion to strings, but can also create strange
+behaviors, the typical case being comparisons. Here are some examples:
+
+::
+
+    > "5" == 5;
+    true
+    > "" == 0;
+    true
+    > "0" == false;
+    true
+
+Like in C, numbers are considered as ``false`` if they are ``0`` and ``true`` otherwise. Strings are considered as
+``true`` except if they are empty.
+
+During any operations involving different types, multiple castings can occur which are quite complicated to predict for
+the programmer. That's why it is considered safer to always use the ``===`` and ``!==`` operators.
+
+::
+
+    > "5" === 5;
+    false
+    > "" === 0;
+    false
+    > "0" === false;
+    false
+
+These operators will always return ``false`` if the types to compare are different.
+
+
+Control Structures
+------------------
+
+JavaScript provides the same control structures than C. (To test with Chrome's console, you can use *Shift + Enter* to
+enter multiple lines of code.)
+
+::
+
+    > if (true == true) {
+          console.log("true is true");
+      }
+    true is true
+    > var x = 0;
+    > while (x < 3) {
+          console.log(x);
+          x++;
+      }
+    1
+    2
+    3
+    > for (var i = 5; i < 8; i++) {
+          console.log(i);
+      }
+    5
+    6
+    7
+
+JavaScript also provides a specialized for structure to loop on objects. (``for (... in ...)``.) It should be noted
+that, due to bad conception of the language involving variable scopes, functional programming, performances issues and
+bad behavior with arrays, almost all experienced programmers will avoid the usage of that structure and rather use
+functions provided by non-standard libraries like jQuery or Underscore. We recommend you to use ``_.each`` provided by
+Underscore most of the time. (More information about that library is given later in this document.)
+
+Functions
+---------
+
+Functions can be declared like this:
+
+::
+
+    > function talk() {
+          console.log("Hello World");
+      }
+    > talk();
+    Hello World
+
+In JavaScript, functions are also a complete type by themselves. They can be declared as expressions and stored in
+variables.
+
+::
+
+    > var talk = function() {
+          console.log("Hello World");
+      }
+    > talk();
+    Hello World
+    > var talkAgain = talk;
+    > talkAgain();
+    Hello World
+    > function executeFunc(func) {
+          func();
+      }
+    > executeFunc(talk);
+    Hello World
+
+Function arguments are declared like in most languages, except without types. Please note that the JavaScript virtual
+machine never checks the number of arguments when a function is called. If there are more arguments the function will be
+called anyway, if there are fewer arguments the remaining ones will be ``undefined``.
+
+::
+
+    > var print = function(a, b) {
+          console.log(a);
+          console.log(b);
+      }
+    > print("hello");
+    hello
+    undefined
+    > print("nice", "to", "meet", "you");
+    nice
+    to
+
+Variables and Scopes
+--------------------
+
+A variable is declared by preceding its name by ``var``. Unlike C++ and Java, a scope is not defined by the existence of
+braces. A scope is defined by a function.
+
+::
+
+    > function func1() {
+          var x; // x is inside the scope of func1
+          function func2() { // func2 is inside the scope of func1
+              var y; // y is in the scope of func2
+          }
+          while (true) {
+              var z; // z is not in a new scope, it is the same scope than x
+          }
+      }
+
+In this example, ``z`` is not a variable which is re-created at each iteration of the ``while`` loop, it is always the
+same variable for each iteration because the variable is defined in the scope of ``func1``.
+
+Functions can also access the variables defined above them.
+
+::
+
+    > function func1() {
+          var x = "hello";
+          function func2() {
+              console.log(x);
+          }
+          func2();
+          x = "world";
+          func2();
+      }
+    > func1();
+    hello
+    world
+
+When a variable is declared directly at the root of a source file, not inside any function, it exists in the global
+scope. Unlike Python, the global scope is not a scope specific to each source file. *The global scope is shared amongst
+all pieces of JavaScript code that are executed by an instance of the virtual machine*, which means on the same web
+page.
+
+::
+
+    // file source1.js
+    var x = "value1";
+
+    // file source2.js
+    var x = "value2";
+
+If those two files are loaded by the same web page the variable ``x`` can only have one value, ``"value1"`` or
+``"value2"``, depending on which file was loaded last. This is obviously a problem and it can be solved using the Module
+Pattern (see later).
+
+One last note about scopes is that any value which is assigned but not declared will be implicitly considered as being
+part of the global scope. This means if you ever forget to use the ``var`` keyword the code will not crash but the
+variable will be global to the application instead of local to the current function. This is a very common source of
+errors in JavaScript.
+
+::
+
+    > function func1() {
+          x = "hello";
+      }
+    > function func2() {
+          console.log(x);
+      }
+    > func2();
+    ReferenceError: x is not defined
+    > func1();
+    > func2();
+    hello
+    > x = "world";
+    > func2();
+    world
+
+Arrays
+------
+
+The syntax of the arrays is pretty similar to Python:
+
+::
+
+    > var array = ["hello", "world"];
+    > for (var i = 0; i < array.length; i++) {
+          console.log(array[i]);
+      }
+    hello world
+
+Please note the above syntax to iterate on arrays works but is ineffective, for real use-cases you should use
+``_.each()`` or a similar function provided by a third-party library.
+
+Like strings, the arrays have methods for different operations:
+
+::
+
+    > var array = [];
+    > array.push("banana"); // adds an element at the end
+    > array.push("tomato");
+    > array;
+    ["banana", "tomato"]
+    > array.pop(); // removes the last element and returns it
+    "tomato"
+    > array;
+    ["banana"]
+
+Objects
+-------
+
+Object-oriented programming is possible in JavaScript, but it is very different compared to most other programming
+language (except if you know Lua).
+
+First of all, objects are dictionaries and dictionaries are objects. There is no difference in JavaScript. The syntax is
+quite similar to Python's dictionaries but has alternative syntactic sugar depending if you prefer use a dictionary-like
+or an object-like syntax. Demonstration:
+
+::
+
+    > var obj = {
+          "key1": "hello", // dictionary-like declaration
+          key2: "world", // object-like declaration
+      };
+    > console.log(obj["key1"]); // dictionary-like lookup
+    hello
+    > console.log(obj.key2); // object-like lookup
+    world
+
+``obj["key"]`` and ``obj.key`` have the exact same meaning. The first one will, by convention, be mostly used if you
+want to make a lookup in a dictionary and the second one will be mostly used to access an object's attribute.
+
+Methods can simply be defined by putting a function inside an object:
+
+::
+
+    > var person = {
+          name: "John Smith",
+          presentYourself: function() {
+              return "Hello, my name is " + this.name;
+          },
+      };
+    > person.presentYourself();
+    "Hello, my name is John Smith"
+    > person.name = "John Doe";
+    > person.presentYourself();
+    "Hello, my name is John Doe"
+
+In JavaScript, each time a function is called it has and additional, implicitly declared variable called ``this``. When
+a method is called on an object (using the usual ``object.method(arguments...)`` syntax), the ``this`` variable will
+be a reference to the current object.
+
+In the above example, we define a unique object containing all the attributes and methods necessary to make it work. But
+that's not how most programming languages will handle object-oriented programming. They have a concept of class. A class
+will contain the properties common to all its instances. There are no classes in JavaScript but it is possible to
+reproduce that concept using *prototypes*.
+
+::
+
+    > var Person = function() { // this function will represent a class "Person"
+          this.name = "JohnSmith";
+      };
+    > Person.prototype = {
+          presentYourself: function() {
+              return "Hello, my name is " + this.name;
+          },
+      };
+    > var person = new Person();
+    > person.presentYourself();
+    "Hello, my name is John Smith"
+
+Since prototype-based oriented object programming is a vast subject we will not cover it more in this guide, though you
+can easily find some information about it on Internet.
+
+Due to differences between prototype-based and class-based oriented object programming, and the habits of most
+programmers, in OpenERP we chose to not use directly prototype-based oriented object programming. We use a high
+level API that allows programmers to easily declare classes in a way that seems natural to people that are used to more
+conventional programming languages. That subject will be covered later in this guide.
